@@ -14,17 +14,24 @@ BinaryFileReader::BinaryFileReader(string fileName)
 		streampos begin = inputFile->tellg();
 		inputFile->seekg(0, ios::end);
 		streampos end = inputFile->tellg();
-		int length = end - begin;
+		length = end - begin;
 		//Create the buffer from that length of the file.
-		fileBytes = new char[length];
+		fileBytes = new byte[length];
 
 		inputFile->seekg(0, ios::beg);
-		inputFile->read(fileBytes, length);
+		for (int i = 0; i < length; i++)
+		{
+			fileBytes[i] = inputFile->get();
+		}
 		inputFile->close();
 	}
 }
+int BinaryFileReader::getFileLength()
+{
+	return length;
+}
 
-char** BinaryFileReader::getFileBytes()
+byte** BinaryFileReader::getFileBytes()
 {
 	return &fileBytes;
 }

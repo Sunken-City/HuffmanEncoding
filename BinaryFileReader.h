@@ -5,14 +5,18 @@
 
 using namespace std;
 
+typedef unsigned char byte;
+
 class BinaryFileReader
 {
 public: 
 	BinaryFileReader(string fileName);
-	char** getFileBytes();
+	byte** getFileBytes();
+	int getFileLength();
 
 private:
 	ifstream* inputFile;
 	string fileName;
-	char* fileBytes;
+	byte* fileBytes;
+	int length;
 };
