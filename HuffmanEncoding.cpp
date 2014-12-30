@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "BinaryFileReader.h"
 #include "BinaryTree.h"
+#include "HuffmanData.h"
 #include <cstring>
 #include <stdlib.h>
 #include <iostream>
@@ -13,37 +14,34 @@
 #include <vector>
 
 using namespace std;
-typedef pair<int, byte> huffmanData;
-typedef BinaryNode<pair<int, byte>> node;
+typedef BinaryNode<HuffmanData> node;
 
-void createTree(vector<huffmanData>* sortedBytes)
+void createTree(vector<HuffmanData>* sortedBytes)
 {
-	BinaryTree<huffmanData> tree = BinaryTree<huffmanData>();
+	BinaryTree<HuffmanData> tree = BinaryTree<HuffmanData>();
 	vector<node*> availableNodes = vector<node*>();
-	for each (huffmanData byte in *sortedBytes)
+	for each (HuffmanData byte in *sortedBytes)
 	{
-		availableNodes.push_back(new node(byte, nullptr, nullptr));
-	}
-	for (int i = 0; i < 0x100; i++)
-	{
-		cout << availableNodes.at(i)->data.second << ": " << availableNodes.at(i)->data.first << endl;
+		//If a byte doesn't show up in the original file, then don't add it to the tree.
+		if (byte.frequency != 0)
+			availableNodes.push_back(new node(byte, nullptr, nullptr));
 	}
 }
 
-vector<huffmanData>* sortBytes(byte** file, int length)
+vector<HuffmanData>* sortBytes(byte** file, int length)
 {
 	//Create a vector so that we can sort our frequencies easily.
-	vector<huffmanData>* sortedFrequencies = new vector<huffmanData>();
+	vector<HuffmanData>* sortedFrequencies = new vector<HuffmanData>();
 	byte* byteValues = *file;
 
 	for (int i = 0; i < 0x100; i++)
 	{
-		sortedFrequencies->push_back(make_pair(0, i));
+		sortedFrequencies->push_back(HuffmanData(0, i));
 	}
 
 	for (int i = 0; i < length; i++)
 	{
-		sortedFrequencies->at(byteValues[i]).first += 1;
+		sortedFrequencies->at(byteValues[i]).frequency += 1;
 	}
 	
 	//Sort the list based on frequency value.
