@@ -10,6 +10,7 @@ class BinaryFileReader
 public: 
 	BinaryFileReader(string fileName);
 	char** getFileBytes();
+
 private:
 	ifstream* inputFile;
 	string fileName;
