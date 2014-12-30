@@ -1,5 +1,13 @@
 #pragma once
 
+template <typename T> class BinaryNode
+{
+public:
+	T data;
+	BinaryNode *left, *right;
+	BinaryNode(T payload, BinaryNode* leftChild, BinaryNode* rightChild) : data(payload), left(leftChild), right(rightChild) {}
+};
+
 template <typename T> class BinaryTree
 {
 public:
@@ -9,16 +17,56 @@ public:
 		numNodes = 0;
 	}
 
-	virtual ~BinaryTree();
-	T* insert(T& data);
-	int getNumNodes();
+	virtual ~BinaryTree()
+	{
+		clearTree(root);
+	}
+
+	T* insert(T& data)
+	{
+		return insert(data, root);
+	}
+
+	T* find(T& value)
+	{
+		return find(value, this->root);
+	}
+
+	int getNumNodes()
+	{
+		return numNodes;
+	}
 
 private:
-	BinaryNode<T>* root;
 	int numNodes;
-	T* insert(T& newData, AvlNode<T>* &node);
+	BinaryNode<T>* root;
 
-	T* find(T& value, AvlNode<T> *node)
+	T* insert(T& newData, BinaryNode<T>* &node)
+	{
+		T* returnVal = NULL;
+
+		//Base Case: If we don't have a node, then we insert here
+		if (node == NULL)
+		{
+			numNodes = numNodes + 1;
+			node = new BinaryNode<T>(newData, NULL, NULL);
+			returnVal = &(node->data);
+		}
+
+		//Otherwise, begin the descent.
+		else if (newData < node->data)
+			returnVal = insert(newData, node->left);
+
+		else if (node->data < newData) //You only have to overload one operator, so we swap the two to use < again.
+			returnVal = insert(newData, node->right);
+
+		else
+			returnVal = &(node->data);
+
+		return returnVal;
+	}
+
+	T* find(T& value, BinaryNode<T> *node)
 	{
 		if (node != NULL)
 		{
@@ -42,7 +90,7 @@ private:
 		}
 	}
 
-	void clearTree(AvlNode<T> *node)
+	void clearTree(BinaryNode<T> *node)
 	{
 		if (node != NULL)
 		{
@@ -51,13 +99,4 @@ private:
 			delete node;         // Delete this node
 		}
 	}
-};
-
-template <typename T> class BinaryNode
-{
-public:
-	T data;
-	BinaryNode *left, *right;
-	BinaryNode(T data, BinaryNode* left, BinaryNode* right);
-
 };
