@@ -2,6 +2,7 @@
 //
 
 #include "stdafx.h"
+#include "BinaryFileReader.h"
 #include <cstring>
 #include <stdlib.h>
 #include <iostream>
@@ -17,26 +18,9 @@ int _tmain(int argc, _TCHAR* argv[])
 	string fileName;
 	cin >> fileName;
 
-	ifstream file;
-	file.open(fileName, ios::in | ios::binary);
-
-	string readLine;
-	char* fileBytes = nullptr;
-	if (file.is_open())
-	{
-		//Get the length of the file first
-		streampos begin = file.tellg();
-		file.seekg(0, ios::end);
-		streampos end = file.tellg();
-		int length = end - begin;
-		//Create the buffer from that length of the file.
-		fileBytes = new char[length];
-
-		file.seekg(0, ios::beg);
-		file.read(fileBytes, length);
-		file.close();
-	}
-	cout << fileBytes;
+	BinaryFileReader file = BinaryFileReader(fileName);
+	
+	cout << *(file.getFileBytes());
 	cin >> fileName;
 	return 0;
 }
