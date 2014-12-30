@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <vector>
 #include <list>
+#include <bitset>
 
 using namespace std;
 typedef BinaryNode<HuffmanData> node;
@@ -31,6 +32,23 @@ void insertNode(node* parentNode, list<node*>* availableNodes)
 	//If this is the biggest node, add it to the back of the list
 	availableNodes->push_back(parentNode);
 }
+
+void generateHuffmanCode(BinaryNode<HuffmanData> *node, unsigned int** huffmanHash, unsigned int huffmanCode, int treeDepth)
+{
+	if (node != NULL)
+	{
+		if (node->left == NULL && node->right == NULL)
+			(*huffmanHash)[node->data.byte] = huffmanCode;
+		generateHuffmanCode(node->left, huffmanHash, huffmanCode + (0x0 << treeDepth), treeDepth + 1);   // Traverse the left sub-tree
+		generateHuffmanCode(node->right, huffmanHash, huffmanCode + (0x1 << treeDepth), treeDepth + 1);   // Traverse the right sub-tree
+	}
+}
+
+void generateHuffmanCodes(BinaryTree<HuffmanData>* tree, unsigned int** huffmanCodes)
+{
+	generateHuffmanCode(tree->getRoot(), huffmanCodes, 0x0, 0);
+}
+
 void createTree(vector<HuffmanData>* sortedBytes)
 {
 	list<node*> availableNodes = list<node*>();
@@ -58,7 +76,18 @@ void createTree(vector<HuffmanData>* sortedBytes)
 	}
 
 	BinaryTree<HuffmanData> tree = BinaryTree<HuffmanData>(availableNodes.front());
-	tree.postorderPrint(cout);
+
+	unsigned int* huffmanCodes = new unsigned int[0x100];
+	for (size_t i = 0; i < 0x100; i++)
+	{
+		huffmanCodes[i] = 0x0;
+	}
+	generateHuffmanCodes(&tree, &huffmanCodes);
+	for (size_t i = 0; i < 0x100; i++)
+	{
+		cout << (char)i << " has the code: " << std::bitset<8>(huffmanCodes[i]) << endl;
+	}
+
 }
 
 vector<HuffmanData>* sortBytes(byte** file, int length)

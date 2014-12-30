@@ -40,7 +40,12 @@ public:
 	{
 		postorderPrint(root, fout);
 	}
-	
+
+	BinaryNode<T>* getRoot()
+	{
+		return root;
+	}
+
 private:
 	BinaryNode<T>* root;
 
