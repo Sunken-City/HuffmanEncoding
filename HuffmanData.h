@@ -24,4 +24,10 @@ public:
 		//If the data payload and frequency are equivalent, return true.
 		return ((this->byte == rhs.byte) && (this->frequency == rhs.frequency));
 	}
+
+	friend std::ostream& operator<<(std::ostream& os, const HuffmanData& rhs)
+	{
+		os << rhs.byte << " : " << rhs.frequency;
+		return os;
+	}
 };

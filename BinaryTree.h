@@ -14,7 +14,11 @@ public:
 	BinaryTree()
 	{
 		root = nullptr;
-		numNodes = 0;
+	}
+	
+	BinaryTree(BinaryNode<T>* rootNode)
+	{
+		root = rootNode;
 	}
 
 	virtual ~BinaryTree()
@@ -32,13 +36,12 @@ public:
 		return find(value, this->root);
 	}
 
-	int getNumNodes()
+	void postorderPrint(ostream & fout)
 	{
-		return numNodes;
+		postorderPrint(root, fout);
 	}
-
+	
 private:
-	int numNodes;
 	BinaryNode<T>* root;
 
 	T* insert(T& newData, BinaryNode<T>* &node)
@@ -48,7 +51,6 @@ private:
 		//Base Case: If we don't have a node, then we insert here
 		if (node == NULL)
 		{
-			numNodes = numNodes + 1;
 			node = new BinaryNode<T>(newData, NULL, NULL);
 			returnVal = &(node->data);
 		}
@@ -97,6 +99,16 @@ private:
 			clearTree(node->right);   // Recursively clear the right sub-tree
 			clearTree(node->left);   // Recursively clear the left sub-tree
 			delete node;         // Delete this node
+		}
+	}
+
+	void postorderPrint(BinaryNode<T> *node, ostream & fout)
+	{
+		if (node != NULL)
+		{
+			postorderPrint(node->left, fout);   // Recursively print the left sub-tree
+			postorderPrint(node->right, fout);   // Recursively print the right sub-tree
+			fout << node->data << endl;
 		}
 	}
 };

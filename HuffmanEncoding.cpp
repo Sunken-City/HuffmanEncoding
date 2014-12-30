@@ -12,20 +12,53 @@
 #include <string>
 #include <algorithm>
 #include <vector>
+#include <list>
 
 using namespace std;
 typedef BinaryNode<HuffmanData> node;
-
+void insertNode(node* parentNode, list<node*>* availableNodes)
+{
+	list<node*>::iterator iter = availableNodes->begin();
+	for each (node* var in *availableNodes)
+	{
+		if (var->data.frequency > parentNode->data.frequency)
+		{
+			availableNodes->insert(iter, parentNode);
+			return;
+		}
+		iter++;
+	}
+	//If this is the biggest node, add it to the back of the list
+	availableNodes->push_back(parentNode);
+}
 void createTree(vector<HuffmanData>* sortedBytes)
 {
-	BinaryTree<HuffmanData> tree = BinaryTree<HuffmanData>();
-	vector<node*> availableNodes = vector<node*>();
+	list<node*> availableNodes = list<node*>();
 	for each (HuffmanData byte in *sortedBytes)
 	{
 		//If a byte doesn't show up in the original file, then don't add it to the tree.
 		if (byte.frequency != 0)
 			availableNodes.push_back(new node(byte, nullptr, nullptr));
 	}
+	
+	while (availableNodes.size() > 1)
+	{
+		//Start by getting a handle to the first two nodes and popping them off the list.
+		node* leftNode = availableNodes.front();
+		availableNodes.pop_front();
+		node* rightNode = availableNodes.front();
+		availableNodes.pop_front();
+
+		//Create a new node using the first two nodes as children
+		node* parentNode = new node(HuffmanData(leftNode->data.frequency + rightNode->data.frequency, 14), leftNode, rightNode);
+		cout << parentNode->data.frequency << " left -> " << parentNode->left->data.byte << " right -> " << parentNode->right->data.byte << endl;
+
+		//Now find the appropriate place to put the new node in the list
+		insertNode(parentNode, &availableNodes);
+	}
+
+	BinaryTree<HuffmanData> tree = BinaryTree<HuffmanData>(availableNodes.front());
+	tree.postorderPrint(cout);
 }
 
 vector<HuffmanData>* sortBytes(byte** file, int length)
@@ -47,10 +80,6 @@ vector<HuffmanData>* sortBytes(byte** file, int length)
 	//Sort the list based on frequency value.
 	sort(sortedFrequencies->begin(), sortedFrequencies->end());
 
-	/*for (int i = 0; i < 0x100; i++)
-	{
-		cout << sortedFrequencies->at(i).second << ": " << sortedFrequencies->at(i).first << endl;
-	}*/
 	return sortedFrequencies;
 }
 
