@@ -24,13 +24,13 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BinaryFileReader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="BinaryTree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="HuffmanData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FileCompressor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -41,7 +41,7 @@
     <ClCompile Include="HuffmanEncoding.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BinaryFileReader.cpp">
+    <ClCompile Include="FileCompressor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

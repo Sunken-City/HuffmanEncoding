@@ -2,7 +2,7 @@
 //
 
 #include "stdafx.h"
-#include "BinaryFileReader.h"
+#include "FileCompressor.h"
 #include "BinaryTree.h"
 #include "HuffmanData.h"
 #include <cstring>
@@ -49,7 +49,7 @@ void generateHuffmanCodes(BinaryTree<HuffmanData>* tree, string** huffmanCodes)
 	generateHuffmanCode(tree->getRoot(), huffmanCodes, "");
 }
 
-void createTree(vector<HuffmanData>* sortedBytes)
+string** createTree(vector<HuffmanData>* sortedBytes)
 {
 	list<node*> availableNodes = list<node*>();
 	for each (HuffmanData byte in *sortedBytes)
@@ -69,7 +69,7 @@ void createTree(vector<HuffmanData>* sortedBytes)
 
 		//Create a new node using the first two nodes as children
 		node* parentNode = new node(HuffmanData(leftNode->data.frequency + rightNode->data.frequency, 14), leftNode, rightNode);
-		cout << parentNode->data.frequency << " left -> " << parentNode->left->data.byte << " right -> " << parentNode->right->data.byte << endl;
+		//cout << parentNode->data.frequency << " left -> " << parentNode->left->data.byte << " right -> " << parentNode->right->data.byte << endl;
 
 		//Now find the appropriate place to put the new node in the list
 		insertNode(parentNode, &availableNodes);
@@ -83,11 +83,12 @@ void createTree(vector<HuffmanData>* sortedBytes)
 		huffmanCodes[i] = "";
 	}
 	generateHuffmanCodes(&tree, &huffmanCodes);
-	for (size_t i = 0; i < 0x100; i++)
+	return &huffmanCodes;
+	/*for (size_t i = 0; i < 0x100; i++)
 	{
 		if (huffmanCodes[i] != "")
 			cout << (char)i << " has the code: " << huffmanCodes[i] << endl;
-	}
+	}*/
 
 }
 
@@ -120,9 +121,11 @@ int _tmain(int argc, _TCHAR* argv[])
 	string fileName;
 	cin >> fileName;
 
-	BinaryFileReader file = BinaryFileReader(fileName);
-	createTree(sortBytes(file.getFileBytes(), file.getFileLength()));
+	FileCompressor file = FileCompressor(fileName);
+	string* huffmanHash = *createTree(sortBytes(file.getFileBytes(), file.getFileLength()));
 	
+	file.compressFile(&huffmanHash);
+
 	//Stop the output window from closing immediately.
 	cin >> fileName;
 	return 0;
