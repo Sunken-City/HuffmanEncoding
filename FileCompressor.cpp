@@ -66,15 +66,28 @@ void FileCompressor::compress(string** huffmanCodes, Serializer* write)
 	}
 	//Once we have the bitstream, we can now pull out bytes from it and 
 	//write them to the compressed file.
+	byte nextByte;
 	while (bitstream.size() > 7)
 	{
-		byte nextByte = 0;
+		nextByte = 0;
 		for (int i = 0; i < 8; i++)
 		{
 			nextByte = nextByte | (popBit(&bitstream) << i);
 		}
 		write->IO<byte>(nextByte);
 	}
+	nextByte = 0;
+	//Write out the last few bits and add junk bits as necessary.
+	byte junkBits = '8' - bitstream.size();
+	for (int i = 0; i < 8; i++)
+	{
+		if (bitstream.size() > 0)
+			nextByte = nextByte | (popBit(&bitstream) << i);
+		else
+			nextByte = nextByte | (0 << i);
+	}
+	write->IO<byte>(nextByte);
+	write->IO<byte>(junkBits);
 	write->close();
 }
 
@@ -89,16 +102,21 @@ void FileCompressor::decompress(Serializer* read)
 		bytestream.push(nextByte);
 		read->IO<char>(nextByte);
 	}
-
 	Serializer write = Serializer("output.txt", false);
 	string treePath = "";
-	while (bytestream.size() > 0)
+	int validBits = 8;
+
+	//The back bit is our junk bit control byte
+	while (bytestream.size() > 1)
 	{
 		__int8 nextBit;
-		//Pico RylPe		//RR R
 		char nextByte = popBit(&bytestream);
 		BinaryNode<HuffmanData>* node = nullptr;
-		for (int i = 0; i < 8; i++)
+		if (bytestream.size() == 1)
+		{
+			validBits = validBits - (bytestream.back() - '0');
+		}
+		for (int i = 0; i < validBits; i++)
 		{
 			node = NULL;
 			nextBit = (nextByte >> i) & 1;
