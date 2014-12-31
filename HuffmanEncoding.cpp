@@ -18,6 +18,9 @@
 
 using namespace std;
 typedef BinaryNode<HuffmanData> node;
+
+Serializer write = Serializer(false);
+
 void insertNode(node* parentNode, list<node*>* availableNodes)
 {
 	list<node*>::iterator iter = availableNodes->begin();
@@ -84,9 +87,7 @@ string** createTree(vector<HuffmanData>* sortedBytes)
 		huffmanCodes[i] = "";
 	}
 	generateHuffmanCodes(&tree, &huffmanCodes);
-	Serializer write = Serializer(false);
 	tree.serialize(write);
-	write.close();
 	return &huffmanCodes;
 }
 
@@ -122,7 +123,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	FileCompressor file = FileCompressor(fileName);
 	string* huffmanHash = *createTree(sortBytes(file.getFileBytes(), file.getFileLength()));
 	
-	file.compressFile(&huffmanHash);
+	file.compressFile(&huffmanHash, &write);
 
 	//Stop the output window from closing immediately.
 	cin >> fileName;

@@ -3,9 +3,9 @@
 #include <fstream>
 #include <string>
 #include <queue>
+#include "Serializer.h"
 
 using namespace std;
-
 typedef unsigned char byte;
 
 class FileCompressor
@@ -14,7 +14,7 @@ public:
 	FileCompressor(string fileName);
 	byte** getFileBytes();
 	int getFileLength();
-	void compressFile(string** huffmanHash);
+	void compressFile(string** huffmanHash, Serializer* write);
 
 private:
 	ifstream* inputFile;
