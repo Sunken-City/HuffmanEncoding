@@ -47,7 +47,7 @@ __int8 FileCompressor::popBit(queue<__int8>* bitstream)
 void FileCompressor::compressFile(string** huffmanCodes)
 {
 	ofstream file;
-	file.open("top.kek", ios::out | ios::binary);
+	file.open("top.kek", ios::out | ios::binary | ios::app);
 	string* huffmanHash = *huffmanCodes;
 	//Using an 8 bit int for the queue, since each BIT
 	//is represented by 4 BYTES otherwise

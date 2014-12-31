@@ -1,14 +1,57 @@
 #pragma once
+#include "Serializeable.h"
+#include "Serializer.h"
 
-template <typename T> class BinaryNode
+template <typename T> class BinaryNode : public Serializeable
 {
 public:
 	T data;
 	BinaryNode *left, *right;
 	BinaryNode(T payload, BinaryNode* leftChild, BinaryNode* rightChild) : data(payload), left(leftChild), right(rightChild) {}
+	void serialize(Serializer write)
+	{
+		this->data.serialize(write);
+		char isNull = 'X';
+		char notNull = 'O';
+		//Write out a character to denote a branch as null
+		if (this->left == NULL)
+			write.IO<char>(isNull);
+		else
+		{
+			write.IO<char>(notNull);
+			this->left->serialize(write);
+		}
+		if (this->right == NULL)
+			write.IO<char>(isNull);
+		else
+		{
+			write.IO<char>(notNull);
+			this->right->serialize(write);
+		}
+	}
+
+	BinaryNode<T>* reconstruct(Serializer read)
+	{
+		BinaryNode<T>* node = new BinaryNode<T>();
+		node->data.reconstruct(read);
+		char isNull = 0x0;
+		read.IO<char>(isNull);
+		if (isNull == 'X')
+			this->left = NULL;
+		else
+			this->left = BinaryNode::reconstruct(read);
+
+		read.IO<char>(isNull);
+		if (isNull == 'X')
+			this->right = NULL;
+		else
+			this->right = BinaryNode::reconstruct(read);
+
+		return node;
+	}
 };
 
-template <typename T> class BinaryTree
+template <typename T> class BinaryTree : public Serializeable
 {
 public:
 	BinaryTree()
@@ -36,14 +79,26 @@ public:
 		return find(value, this->root);
 	}
 
-	void postorderPrint(ostream & fout)
+	void postorderPrint(ofstream& file)
 	{
-		postorderPrint(root, fout);
+		postorderPrint(root, file);
 	}
 
 	BinaryNode<T>* getRoot()
 	{
 		return root;
+	}
+
+	void serialize(Serializer write)
+	{
+		this->root->serialize(write);
+	}
+	
+	BinaryTree<T>* reconstruct(Serializer read)
+	{
+		BinaryTree<T>* tree = new BinaryNode<T>();
+		tree->root.reconstruct(read);
+		return tree;
 	}
 
 private:
@@ -107,13 +162,13 @@ private:
 		}
 	}
 
-	void postorderPrint(BinaryNode<T> *node, ostream & fout)
+	void postorderPrint(BinaryNode<T> *node, ofstream& file)
 	{
 		if (node != NULL)
 		{
-			postorderPrint(node->left, fout);   // Recursively print the left sub-tree
-			postorderPrint(node->right, fout);   // Recursively print the right sub-tree
-			fout << node->data << endl;
+			postorderPrint(node->left, file);   // Recursively print the left sub-tree
+			postorderPrint(node->right, file);   // Recursively print the right sub-tree
+			file << node->data << endl;
 		}
 	}
 };

@@ -5,6 +5,7 @@
 #include "FileCompressor.h"
 #include "BinaryTree.h"
 #include "HuffmanData.h"
+#include "Serializer.h"
 #include <cstring>
 #include <stdlib.h>
 #include <iostream>
@@ -83,13 +84,10 @@ string** createTree(vector<HuffmanData>* sortedBytes)
 		huffmanCodes[i] = "";
 	}
 	generateHuffmanCodes(&tree, &huffmanCodes);
+	Serializer write = Serializer(false);
+	tree.serialize(write);
+	write.close();
 	return &huffmanCodes;
-	/*for (size_t i = 0; i < 0x100; i++)
-	{
-		if (huffmanCodes[i] != "")
-			cout << (char)i << " has the code: " << huffmanCodes[i] << endl;
-	}*/
-
 }
 
 vector<HuffmanData>* sortBytes(byte** file, int length)
