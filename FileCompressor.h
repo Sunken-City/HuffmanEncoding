@@ -4,6 +4,7 @@
 #include <string>
 #include <queue>
 #include "Serializer.h"
+#include "BinaryTree.h"
 
 using namespace std;
 typedef unsigned char byte;
@@ -14,7 +15,8 @@ public:
 	FileCompressor(string fileName);
 	byte** getFileBytes();
 	int getFileLength();
-	void compressFile(string** huffmanHash, Serializer* write);
+	void compress(string** huffmanHash, Serializer* write);
+	void decompress(Serializer* write);
 
 private:
 	ifstream* inputFile;

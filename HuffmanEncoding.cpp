@@ -2,10 +2,6 @@
 //
 
 #include "stdafx.h"
-#include "FileCompressor.h"
-#include "BinaryTree.h"
-#include "HuffmanData.h"
-#include "Serializer.h"
 #include <cstring>
 #include <stdlib.h>
 #include <iostream>
@@ -15,11 +11,12 @@
 #include <vector>
 #include <list>
 #include <bitset>
+#include "FileCompressor.h"
 
 using namespace std;
-typedef BinaryNode<HuffmanData> node;
 
-Serializer write = Serializer(false);
+Serializer write = Serializer("zippedTest.kek", false);
+Serializer read = Serializer("zippedTest.kek", true);
 
 void insertNode(node* parentNode, list<node*>* availableNodes)
 {
@@ -122,8 +119,10 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	FileCompressor file = FileCompressor(fileName);
 	string* huffmanHash = *createTree(sortBytes(file.getFileBytes(), file.getFileLength()));
-	
-	file.compressFile(&huffmanHash, &write);
+	file.compress(&huffmanHash, &write);
+
+	//FileCompressor uncompressed = FileCompressor("new" + fileName);
+	file.decompress(&read);
 
 	//Stop the output window from closing immediately.
 	cin >> fileName;

@@ -1,12 +1,11 @@
 #pragma once
-#include "Serializeable.h"
-#include "Serializer.h"
 
 template <typename T> class BinaryNode : public Serializeable
 {
 public:
 	T data;
 	BinaryNode *left, *right;
+	BinaryNode() : left(NULL), right(NULL) {};
 	BinaryNode(T payload, BinaryNode* leftChild, BinaryNode* rightChild) : data(payload), left(leftChild), right(rightChild) {}
 	void serialize(Serializer write)
 	{
@@ -37,15 +36,15 @@ public:
 		char isNull = 0x0;
 		read.IO<char>(isNull);
 		if (isNull == 'X')
-			this->left = NULL;
+			node->left = NULL;
 		else
-			this->left = BinaryNode::reconstruct(read);
+			node->left = BinaryNode::reconstruct(read);
 
 		read.IO<char>(isNull);
 		if (isNull == 'X')
-			this->right = NULL;
+			node->right = NULL;
 		else
-			this->right = BinaryNode::reconstruct(read);
+			node->right = BinaryNode::reconstruct(read);
 
 		return node;
 	}
@@ -78,12 +77,7 @@ public:
 	{
 		return find(value, this->root);
 	}
-
-	void postorderPrint(ofstream& file)
-	{
-		postorderPrint(root, file);
-	}
-
+	
 	BinaryNode<T>* getRoot()
 	{
 		return root;
@@ -94,10 +88,10 @@ public:
 		this->root->serialize(write);
 	}
 	
-	BinaryTree<T>* reconstruct(Serializer read)
+	static BinaryTree<T>* reconstruct(Serializer read)
 	{
-		BinaryTree<T>* tree = new BinaryNode<T>();
-		tree->root.reconstruct(read);
+		BinaryTree<T>* tree = new BinaryTree<T>();
+		tree->root = tree->root->reconstruct(read);
 		return tree;
 	}
 
@@ -162,13 +156,4 @@ private:
 		}
 	}
 
-	void postorderPrint(BinaryNode<T> *node, ofstream& file)
-	{
-		if (node != NULL)
-		{
-			postorderPrint(node->left, file);   // Recursively print the left sub-tree
-			postorderPrint(node->right, file);   // Recursively print the right sub-tree
-			file << node->data << endl;
-		}
-	}
 };

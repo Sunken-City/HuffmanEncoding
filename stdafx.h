@@ -6,10 +6,16 @@
 #pragma once
 
 #include "targetver.h"
+#include "Serializeable.h"
+#include "Serializer.h"
+#include "HuffmanData.h"
+#include "BinaryTree.h"
 
 #include <stdio.h>
 #include <tchar.h>
 
+typedef unsigned char byte;
+typedef BinaryNode<HuffmanData> node;
 
 
 // TODO: reference additional headers your program requires here

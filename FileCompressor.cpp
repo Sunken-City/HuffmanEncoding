@@ -44,7 +44,7 @@ __int8 FileCompressor::popBit(queue<__int8>* bitstream)
 	return bit;
 }
 
-void FileCompressor::compressFile(string** huffmanCodes, Serializer* write)
+void FileCompressor::compress(string** huffmanCodes, Serializer* write)
 {
 	string* huffmanHash = *huffmanCodes;
 	//Using an 8 bit int for the queue, since each BIT
@@ -76,4 +76,30 @@ void FileCompressor::compressFile(string** huffmanCodes, Serializer* write)
 		write->IO<byte>(nextByte);
 	}
 	write->close();
+}
+
+void FileCompressor::decompress(Serializer* read)
+{
+	BinaryTree<HuffmanData>* tree = BinaryTree<HuffmanData>::reconstruct(*read);
+	queue<char> bytestream = queue<char>();
+	while (read->hasNext())
+	{
+		char nextByte;
+		read->IO<char>(nextByte);
+		bytestream.push(nextByte);
+	}
+
+	Serializer write = Serializer("output.txt", false);
+	while (bytestream.size() > 0)
+	{
+		__int8 nextBit = 0;
+		char nextByte = popBit(&bytestream);
+		string treePath = "";
+		for (int i = 0; i < 8; i++)
+		{
+			nextBit = (nextByte >> i) & 1;
+			treePath += (char)(nextBit + (int)'0');
+		}
+		//write.IO<char>(nextByte);
+	}
 }
