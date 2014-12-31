@@ -7,6 +7,12 @@ public:
 	BinaryNode *left, *right;
 	BinaryNode() : left(NULL), right(NULL) {};
 	BinaryNode(T payload, BinaryNode* leftChild, BinaryNode* rightChild) : data(payload), left(leftChild), right(rightChild) {}
+
+	bool isLeaf()
+	{
+		return (left == NULL) && (right == NULL);
+	}
+
 	void serialize(Serializer write)
 	{
 		this->data.serialize(write);
@@ -93,6 +99,21 @@ public:
 		BinaryTree<T>* tree = new BinaryTree<T>();
 		tree->root = tree->root->reconstruct(read);
 		return tree;
+	}
+
+	BinaryNode<T>* findLeaf(string huffmanString)
+	{
+		BinaryNode<T>* currentNode = root;
+		for each (char bit in huffmanString)
+		{
+			if (bit == '0')
+				currentNode = currentNode->left;
+			else if (bit == '1')
+				currentNode = currentNode->right;
+			if (currentNode->isLeaf())
+				return currentNode;
+		}
+		return NULL;
 	}
 
 private:

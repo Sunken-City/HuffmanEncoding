@@ -125,7 +125,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	file.decompress(&read);
 
 	//Stop the output window from closing immediately.
-	cin >> fileName;
+	//cin >> fileName;
 	return 0;
 }
 

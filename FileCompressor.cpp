@@ -82,24 +82,34 @@ void FileCompressor::decompress(Serializer* read)
 {
 	BinaryTree<HuffmanData>* tree = BinaryTree<HuffmanData>::reconstruct(*read);
 	queue<char> bytestream = queue<char>();
+	char nextByte;
+	read->IO<char>(nextByte);
 	while (read->hasNext())
 	{
-		char nextByte;
-		read->IO<char>(nextByte);
 		bytestream.push(nextByte);
+		read->IO<char>(nextByte);
 	}
 
 	Serializer write = Serializer("output.txt", false);
+	string treePath = "";
 	while (bytestream.size() > 0)
 	{
-		__int8 nextBit = 0;
+		__int8 nextBit;
+		//Pico RylPe		//RR R
 		char nextByte = popBit(&bytestream);
-		string treePath = "";
+		BinaryNode<HuffmanData>* node = nullptr;
 		for (int i = 0; i < 8; i++)
 		{
+			node = NULL;
 			nextBit = (nextByte >> i) & 1;
 			treePath += (char)(nextBit + (int)'0');
+			node = tree->findLeaf(treePath);
+			if (node != NULL)
+			{
+				write.IO<char>(node->data.byte);
+				treePath = "";
+			}
 		}
-		//write.IO<char>(nextByte);
 	}
+	write.close();
 }
