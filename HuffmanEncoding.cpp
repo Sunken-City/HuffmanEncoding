@@ -36,12 +36,18 @@ void insertNode(node* parentNode, list<node*>* availableNodes)
 
 void generateHuffmanCode(BinaryNode<HuffmanData> *node, string** huffmanHash, string huffmanCode)
 {
+	//If the node is null, don't do anything.
 	if (node != NULL)
 	{
+		//If the node is a leaf node, set the data for it
 		if (node->left == NULL && node->right == NULL)
-			(*huffmanHash)[node->data.byte] = huffmanCode;
-		generateHuffmanCode(node->left, huffmanHash, huffmanCode + "0");   // Traverse the left sub-tree
-		generateHuffmanCode(node->right, huffmanHash, huffmanCode + "1");   // Traverse the right sub-tree
+			(*huffmanHash)[(unsigned char)node->data.byte] = huffmanCode;
+		//Otherwise, go down the tree again.
+		else
+		{
+			generateHuffmanCode(node->left, huffmanHash, huffmanCode + "0");   // Traverse the left sub-tree
+			generateHuffmanCode(node->right, huffmanHash, huffmanCode + "1");   // Traverse the right sub-tree
+		}
 	}
 }
 
@@ -78,8 +84,8 @@ string** createTree(vector<HuffmanData>* sortedBytes)
 
 	BinaryTree<HuffmanData> tree = BinaryTree<HuffmanData>(availableNodes.front());
 
-	string* huffmanCodes = new string[0x100];
-	for (size_t i = 0; i < 0x100; i++)
+	string* huffmanCodes = new string[0x101];
+	for (size_t i = 0; i < 0x101; i++)
 	{
 		huffmanCodes[i] = "";
 	}
