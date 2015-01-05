@@ -21,9 +21,14 @@ private:
 template<class T> void Serializer::IO(T& IOable)
 {
 	if (this->readingMode)
+	{
 		fread(&IOable, sizeof(T), 1, this->file);
+	}
 	else
+	{
 		fwrite(&IOable, sizeof(T), 1, this->file);
+		fflush(this->file);
+	}
 }
 
 class TruncatedFileException : public std::runtime_error {

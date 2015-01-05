@@ -96,16 +96,18 @@ void FileCompressor::decompress(Serializer* read)
 	BinaryTree<HuffmanData>* tree = BinaryTree<HuffmanData>::reconstruct(*read);
 	queue<char> bytestream = queue<char>();
 	char nextByte;
+	//The first byte needs to be read outside the loop, because feof doesn't
+	//set a flag unless another read is attempted past the end of the file
 	read->IO<char>(nextByte);
 	while (read->hasNext())
 	{
 		bytestream.push(nextByte);
 		read->IO<char>(nextByte);
 	}
-	Serializer write = Serializer("output.txt", false);
+	Serializer write = Serializer("output.jpg", false);
 	string treePath = "";
 	int validBits = 8;
-
+	int iterationCount = 0;
 	//The back bit is our junk bit control byte
 	while (bytestream.size() > 1)
 	{
@@ -126,6 +128,7 @@ void FileCompressor::decompress(Serializer* read)
 			{
 				write.IO<char>(node->data.byte);
 				treePath = "";
+				iterationCount++;
 			}
 		}
 	}
