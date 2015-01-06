@@ -1,7 +1,5 @@
 #include "stdafx.h"
 #include "FileCompressor.h"
-#include <chrono>
-typedef std::chrono::high_resolution_clock Clock;
 
 FileCompressor::FileCompressor(string fileName)
 {
@@ -48,7 +46,6 @@ __int8 FileCompressor::popBit(queue<__int8>* bitstream)
 
 void FileCompressor::compress()
 {
-	cout << "Compressing..." << endl;
 	string* huffmanHash = *this->createTree();
 	//Using an 8 bit int for the queue, since each BIT
 	//is represented by 4 BYTES otherwise
@@ -92,21 +89,14 @@ void FileCompressor::compress()
 	write.IO<byte>(nextByte);
 	write.IO<byte>(junkBits);
 	write.close();
-	cout << "Compression Done!" << endl;
 }
 
 void FileCompressor::decompress()
 {
-	cout << "Decompressing..." << endl;
-
-	auto t1 = Clock::now();
 	BinaryTree<HuffmanData>* tree = BinaryTree<HuffmanData>::reconstruct(read);
-	auto t2 = Clock::now();
-	cout << "Tree reconstruction Took: " << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() << endl;
 	queue<char> bytestream = queue<char>();
 	char nextByte;
 
-	t1 = Clock::now();
 	//The first byte needs to be read outside the loop, because feof doesn't
 	//set a flag unless another read is attempted past the end of the file
 	read.IO<char>(nextByte);
@@ -115,15 +105,12 @@ void FileCompressor::decompress()
 		bytestream.push(nextByte);
 		read.IO<char>(nextByte);
 	}
-	t2 = Clock::now();
-	cout << "Bytestream Reading Took: " << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() << endl;
 
 	Serializer write = Serializer("output.jpg", false);
 	string treePath = "";
 	int validBits = 8;
-	BinaryNode<HuffmanData>* node = nullptr;
+	node* node = nullptr;
 	//The final bit is our junk bit control byte
-	t1 = Clock::now();
 	while (bytestream.size() > 1)
 	{
 		__int8 nextBit;
@@ -143,13 +130,10 @@ void FileCompressor::decompress()
 		}
 	}
 	write.close();
-	t2 = Clock::now();
-	cout << "Decompression Done! Took: " << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() << endl;
 }
 
 string** FileCompressor::createTree()
 {
-	cout << "Creating Tree..." << endl;
 	list<node*> availableNodes = list<node*>();
 
 	vector<HuffmanData>* sortedBytes = sortBytes(this->getFileBytes(), this->getFileLength());
@@ -171,7 +155,6 @@ string** FileCompressor::createTree()
 
 		//Create a new node using the first two nodes as children
 		node* parentNode = new node(HuffmanData(leftNode->data.frequency + rightNode->data.frequency, 14), leftNode, rightNode);
-		//cout << parentNode->data.frequency << " left -> " << parentNode->left->data.byte << " right -> " << parentNode->right->data.byte << endl;
 
 		//Now find the appropriate place to put the new node in the list
 		insertNode(parentNode, &availableNodes);
@@ -186,7 +169,6 @@ string** FileCompressor::createTree()
 	}
 	generateHuffmanCodes(&tree, &huffmanCodes);
 	tree.serialize(write);
-	cout << "Tree Creation Done!" << endl;
 	return &huffmanCodes;
 }
 
@@ -195,7 +177,7 @@ void FileCompressor::generateHuffmanCodes(BinaryTree<HuffmanData>* tree, string*
 	generateHuffmanCode(tree->getRoot(), huffmanCodes, "");
 }
 
-void FileCompressor::generateHuffmanCode(BinaryNode<HuffmanData> *node, string** huffmanHash, string huffmanCode)
+void FileCompressor::generateHuffmanCode(node *node, string** huffmanHash, string huffmanCode)
 {
 	//If the node is null, don't do anything.
 	if (node != NULL)

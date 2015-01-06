@@ -5,18 +5,14 @@
 
 #pragma once
 
+//This is a precompiled header, so we can cut down on the number of header lines
+
 #include "targetver.h"
 #include "Serializeable.h"
 #include "Serializer.h"
 #include "HuffmanData.h"
 #include "BinaryTree.h"
+#include "FileCompressor.h"
 
-#include <stdio.h>
-#include <tchar.h>
-#include <list>
+#include <string>
 
-typedef unsigned char byte;
-typedef BinaryNode<HuffmanData> node;
-
-
-// TODO: reference additional headers your program requires here

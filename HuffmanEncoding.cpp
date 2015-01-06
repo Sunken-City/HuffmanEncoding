@@ -1,16 +1,7 @@
 // HuffmanEncoding.cpp : Defines the entry point for the console application.
-//
-
 #include "stdafx.h"
-#include <cstring>
-#include <stdlib.h>
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <algorithm>
-#include <vector>
-#include <bitset>
 #include "FileCompressor.h"
+#include <tchar.h>
 
 using namespace std;
 

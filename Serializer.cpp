@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "Serializer.h"
 
 Serializer::Serializer(string fileName, bool readingMode)
 {
