@@ -7,50 +7,48 @@ public:
 	BinaryNode *left, *right;
 	BinaryNode() : left(nullptr), right(nullptr) {};
 	BinaryNode(T payload, BinaryNode* leftChild, BinaryNode* rightChild) : data(payload), left(leftChild), right(rightChild) {}
+	char isNull = 'X';
+	char notNull = 'O';
 
 	bool isLeaf()
 	{
 		return (left == nullptr) && (right == nullptr);
 	}
 
+	void serializeChild(BinaryNode* child, Serializer write)
+	{
+		if (child == nullptr)
+			write.IO<char>(isNull);
+		else
+		{
+			write.IO<char>(notNull);
+			child->serialize(write);
+		}
+	}
+
 	void serialize(Serializer write)
 	{
 		this->data.serialize(write);
-		char isNull = 'X';
-		char notNull = 'O';
 		//Write out a character to denote a branch as null
-		if (this->left == nullptr)
-			write.IO<char>(isNull);
-		else
-		{
-			write.IO<char>(notNull);
-			this->left->serialize(write);
-		}
-		if (this->right == nullptr)
-			write.IO<char>(isNull);
-		else
-		{
-			write.IO<char>(notNull);
-			this->right->serialize(write);
-		}
+		serializeChild(this->left, write);
+		serializeChild(this->right, write);
+	}
+	BinaryNode<T>* reconstructChild(Serializer read)
+	{
+		BinaryNode<T>* child = nullptr;
+		char isNull = 0x0;
+		read.IO<char>(isNull);
+		if (isNull == 'O')
+			child = BinaryNode::reconstruct(read);
+		return child;
 	}
 
 	BinaryNode<T>* reconstruct(Serializer read)
 	{
 		BinaryNode<T>* node = new BinaryNode<T>();
 		node->data.reconstruct(read);
-		char isNull = 0x0;
-		read.IO<char>(isNull);
-		if (isNull == 'X')
-			node->left = nullptr;
-		else
-			node->left = BinaryNode::reconstruct(read);
-
-		read.IO<char>(isNull);
-		if (isNull == 'X')
-			node->right = nullptr;
-		else
-			node->right = BinaryNode::reconstruct(read);
+		node->left = reconstructChild(read);
+		node->right = reconstructChild(read);
 
 		return node;
 	}
