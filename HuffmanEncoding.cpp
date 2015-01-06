@@ -58,6 +58,7 @@ void generateHuffmanCodes(BinaryTree<HuffmanData>* tree, string** huffmanCodes)
 
 string** createTree(vector<HuffmanData>* sortedBytes)
 {
+	cout << "Creating Tree..." << endl;
 	list<node*> availableNodes = list<node*>();
 	for each (HuffmanData byte in *sortedBytes)
 	{
@@ -91,6 +92,7 @@ string** createTree(vector<HuffmanData>* sortedBytes)
 	}
 	generateHuffmanCodes(&tree, &huffmanCodes);
 	tree.serialize(write);
+	cout << "Tree Creation Done!" << endl;
 	return &huffmanCodes;
 }
 
@@ -129,9 +131,10 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	//FileCompressor uncompressed = FileCompressor("new" + fileName);
 	file.decompress(&read);
+	cout << "Done!" << endl;
 
 	//Stop the output window from closing immediately.
-	//cin >> fileName;
+	cin >> fileName;
 	return 0;
 }
 

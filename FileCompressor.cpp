@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "FileCompressor.h"
+#include <chrono>
+typedef std::chrono::high_resolution_clock Clock;
 
 FileCompressor::FileCompressor(string fileName)
 {
@@ -46,6 +48,7 @@ __int8 FileCompressor::popBit(queue<__int8>* bitstream)
 
 void FileCompressor::compress(string** huffmanCodes, Serializer* write)
 {
+	cout << "Compressing..." << endl;
 	string* huffmanHash = *huffmanCodes;
 	//Using an 8 bit int for the queue, since each BIT
 	//is represented by 4 BYTES otherwise
@@ -89,13 +92,21 @@ void FileCompressor::compress(string** huffmanCodes, Serializer* write)
 	write->IO<byte>(nextByte);
 	write->IO<byte>(junkBits);
 	write->close();
+	cout << "Compression Done!" << endl;
 }
 
 void FileCompressor::decompress(Serializer* read)
 {
+	cout << "Decompressing..." << endl;
+
+	auto t1 = Clock::now();
 	BinaryTree<HuffmanData>* tree = BinaryTree<HuffmanData>::reconstruct(*read);
+	auto t2 = Clock::now();
+	cout << "Tree reconstruction Took: " << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() << endl;
 	queue<char> bytestream = queue<char>();
 	char nextByte;
+
+	t1 = Clock::now();
 	//The first byte needs to be read outside the loop, because feof doesn't
 	//set a flag unless another read is attempted past the end of the file
 	read->IO<char>(nextByte);
@@ -104,33 +115,34 @@ void FileCompressor::decompress(Serializer* read)
 		bytestream.push(nextByte);
 		read->IO<char>(nextByte);
 	}
+	t2 = Clock::now();
+	cout << "Bytestream Reading Took: " << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() << endl;
+
 	Serializer write = Serializer("output.jpg", false);
 	string treePath = "";
 	int validBits = 8;
-	int iterationCount = 0;
-	//The back bit is our junk bit control byte
+	BinaryNode<HuffmanData>* node = NULL;
+	//The final bit is our junk bit control byte
+	t1 = Clock::now();
 	while (bytestream.size() > 1)
 	{
 		__int8 nextBit;
 		char nextByte = popBit(&bytestream);
-		BinaryNode<HuffmanData>* node = nullptr;
 		if (bytestream.size() == 1)
-		{
 			validBits = validBits - (bytestream.back() - '0');
-		}
+
 		for (int i = 0; i < validBits; i++)
 		{
-			node = NULL;
 			nextBit = (nextByte >> i) & 1;
-			treePath += (char)(nextBit + (int)'0');
-			node = tree->findLeaf(treePath);
-			if (node != NULL)
+			node = tree->findLeaf(node, (char)(nextBit + (int)'0'));
+			if (node->isLeaf())
 			{
 				write.IO<char>(node->data.byte);
-				treePath = "";
-				iterationCount++;
+				node = NULL; //Start again from the root node
 			}
 		}
 	}
 	write.close();
+	t2 = Clock::now();
+	cout << "Decompression Done! Took: " << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() << endl;
 }

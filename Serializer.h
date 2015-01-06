@@ -27,7 +27,6 @@ template<class T> void Serializer::IO(T& IOable)
 	else
 	{
 		fwrite(&IOable, sizeof(T), 1, this->file);
-		fflush(this->file);
 	}
 }
 

@@ -101,19 +101,14 @@ public:
 		return tree;
 	}
 
-	BinaryNode<T>* findLeaf(string huffmanString)
+	BinaryNode<T>* findLeaf(BinaryNode<T>* currentNode, char huffmanBit)
 	{
-		BinaryNode<T>* currentNode = root;
-		for each (char bit in huffmanString)
-		{
-			if (bit == '0')
-				currentNode = currentNode->left;
-			else if (bit == '1')
-				currentNode = currentNode->right;
-			if (currentNode->isLeaf())
-				return currentNode;
-		}
-		return NULL;
+		if (currentNode == NULL)
+			currentNode = root;
+		if (huffmanBit == '0')
+			return currentNode->left;
+		else //if (bit == '1')
+			return currentNode->right;
 	}
 
 private:

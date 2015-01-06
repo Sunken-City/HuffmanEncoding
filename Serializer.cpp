@@ -8,10 +8,12 @@ Serializer::Serializer(string fileName, bool readingMode)
 	if (readingMode)
 	{
 		this->file = fopen(fileName.c_str(), "rb");
+		setvbuf(file, NULL, _IOFBF, 1048576);
 	}
 	else
 	{
-		this->file = fopen(fileName.c_str(), "wb");
+		this->file = fopen(fileName.c_str(), "wb"); 
+		setvbuf(file, NULL, _IOFBF, 1048576);
 	}
 	this->readingMode = readingMode;
 	#pragma warning(push)
