@@ -13,6 +13,7 @@
 
 #include <stdio.h>
 #include <tchar.h>
+#include <list>
 
 typedef unsigned char byte;
 typedef BinaryNode<HuffmanData> node;

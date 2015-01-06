@@ -46,10 +46,10 @@ __int8 FileCompressor::popBit(queue<__int8>* bitstream)
 	return bit;
 }
 
-void FileCompressor::compress(string** huffmanCodes, Serializer* write)
+void FileCompressor::compress()
 {
 	cout << "Compressing..." << endl;
-	string* huffmanHash = *huffmanCodes;
+	string* huffmanHash = *this->createTree();
 	//Using an 8 bit int for the queue, since each BIT
 	//is represented by 4 BYTES otherwise
 	queue<__int8> bitstream = queue<__int8>();
@@ -77,7 +77,7 @@ void FileCompressor::compress(string** huffmanCodes, Serializer* write)
 		{
 			nextByte = nextByte | (popBit(&bitstream) << i);
 		}
-		write->IO<byte>(nextByte);
+		write.IO<byte>(nextByte);
 	}
 	nextByte = 0;
 	//Write out the last few bits and add junk bits as necessary.
@@ -89,18 +89,18 @@ void FileCompressor::compress(string** huffmanCodes, Serializer* write)
 		else
 			nextByte = nextByte | (0 << i);
 	}
-	write->IO<byte>(nextByte);
-	write->IO<byte>(junkBits);
-	write->close();
+	write.IO<byte>(nextByte);
+	write.IO<byte>(junkBits);
+	write.close();
 	cout << "Compression Done!" << endl;
 }
 
-void FileCompressor::decompress(Serializer* read)
+void FileCompressor::decompress()
 {
 	cout << "Decompressing..." << endl;
 
 	auto t1 = Clock::now();
-	BinaryTree<HuffmanData>* tree = BinaryTree<HuffmanData>::reconstruct(*read);
+	BinaryTree<HuffmanData>* tree = BinaryTree<HuffmanData>::reconstruct(read);
 	auto t2 = Clock::now();
 	cout << "Tree reconstruction Took: " << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() << endl;
 	queue<char> bytestream = queue<char>();
@@ -109,11 +109,11 @@ void FileCompressor::decompress(Serializer* read)
 	t1 = Clock::now();
 	//The first byte needs to be read outside the loop, because feof doesn't
 	//set a flag unless another read is attempted past the end of the file
-	read->IO<char>(nextByte);
-	while (read->hasNext())
+	read.IO<char>(nextByte);
+	while (read.hasNext())
 	{
 		bytestream.push(nextByte);
-		read->IO<char>(nextByte);
+		read.IO<char>(nextByte);
 	}
 	t2 = Clock::now();
 	cout << "Bytestream Reading Took: " << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() << endl;
@@ -121,7 +121,7 @@ void FileCompressor::decompress(Serializer* read)
 	Serializer write = Serializer("output.jpg", false);
 	string treePath = "";
 	int validBits = 8;
-	BinaryNode<HuffmanData>* node = NULL;
+	BinaryNode<HuffmanData>* node = nullptr;
 	//The final bit is our junk bit control byte
 	t1 = Clock::now();
 	while (bytestream.size() > 1)
@@ -138,11 +138,114 @@ void FileCompressor::decompress(Serializer* read)
 			if (node->isLeaf())
 			{
 				write.IO<char>(node->data.byte);
-				node = NULL; //Start again from the root node
+				node = nullptr; //Start again from the root node
 			}
 		}
 	}
 	write.close();
 	t2 = Clock::now();
 	cout << "Decompression Done! Took: " << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() << endl;
+}
+
+string** FileCompressor::createTree()
+{
+	cout << "Creating Tree..." << endl;
+	list<node*> availableNodes = list<node*>();
+
+	vector<HuffmanData>* sortedBytes = sortBytes(this->getFileBytes(), this->getFileLength());
+
+	for each (HuffmanData byte in *sortedBytes)
+	{
+		//If a byte doesn't show up in the original file, then don't add it to the tree.
+		if (byte.frequency != 0)
+			availableNodes.push_back(new node(byte, nullptr, nullptr));
+	}
+
+	while (availableNodes.size() > 1)
+	{
+		//Start by getting a handle to the first two nodes and popping them off the list.
+		node* leftNode = availableNodes.front();
+		availableNodes.pop_front();
+		node* rightNode = availableNodes.front();
+		availableNodes.pop_front();
+
+		//Create a new node using the first two nodes as children
+		node* parentNode = new node(HuffmanData(leftNode->data.frequency + rightNode->data.frequency, 14), leftNode, rightNode);
+		//cout << parentNode->data.frequency << " left -> " << parentNode->left->data.byte << " right -> " << parentNode->right->data.byte << endl;
+
+		//Now find the appropriate place to put the new node in the list
+		insertNode(parentNode, &availableNodes);
+	}
+
+	BinaryTree<HuffmanData> tree = BinaryTree<HuffmanData>(availableNodes.front());
+
+	string* huffmanCodes = new string[0x101];
+	for (size_t i = 0; i < 0x101; i++)
+	{
+		huffmanCodes[i] = "";
+	}
+	generateHuffmanCodes(&tree, &huffmanCodes);
+	tree.serialize(write);
+	cout << "Tree Creation Done!" << endl;
+	return &huffmanCodes;
+}
+
+void FileCompressor::generateHuffmanCodes(BinaryTree<HuffmanData>* tree, string** huffmanCodes)
+{
+	generateHuffmanCode(tree->getRoot(), huffmanCodes, "");
+}
+
+void FileCompressor::generateHuffmanCode(BinaryNode<HuffmanData> *node, string** huffmanHash, string huffmanCode)
+{
+	//If the node is null, don't do anything.
+	if (node != NULL)
+	{
+		//If the node is a leaf node, set the data for it
+		if (node->left == NULL && node->right == NULL)
+			(*huffmanHash)[(unsigned char)node->data.byte] = huffmanCode;
+		//Otherwise, go down the tree again.
+		else
+		{
+			generateHuffmanCode(node->left, huffmanHash, huffmanCode + "0");   // Traverse the left sub-tree
+			generateHuffmanCode(node->right, huffmanHash, huffmanCode + "1");   // Traverse the right sub-tree
+		}
+	}
+}
+
+void FileCompressor::insertNode(node* parentNode, list<node*>* availableNodes)
+{
+	list<node*>::iterator iter = availableNodes->begin();
+	for each (node* var in *availableNodes)
+	{
+		if (var->data.frequency > parentNode->data.frequency)
+		{
+			availableNodes->insert(iter, parentNode);
+			return;
+		}
+		iter++;
+	}
+	//If this is the biggest node, add it to the back of the list
+	availableNodes->push_back(parentNode);
+}
+
+vector<HuffmanData>* FileCompressor::sortBytes(byte** file, int length)
+{
+	//Create a vector so that we can sort our frequencies easily.
+	vector<HuffmanData>* sortedFrequencies = new vector<HuffmanData>();
+	byte* byteValues = *file;
+
+	for (int i = 0; i < 0x100; i++)
+	{
+		sortedFrequencies->push_back(HuffmanData(0, i));
+	}
+
+	for (int i = 0; i < length; i++)
+	{
+		sortedFrequencies->at(byteValues[i]).frequency += 1;
+	}
+
+	//Sort the list based on frequency value.
+	sort(sortedFrequencies->begin(), sortedFrequencies->end());
+
+	return sortedFrequencies;
 }

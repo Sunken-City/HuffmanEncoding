@@ -5,12 +5,12 @@ template <typename T> class BinaryNode : public Serializeable
 public:
 	T data;
 	BinaryNode *left, *right;
-	BinaryNode() : left(NULL), right(NULL) {};
+	BinaryNode() : left(nullptr), right(nullptr) {};
 	BinaryNode(T payload, BinaryNode* leftChild, BinaryNode* rightChild) : data(payload), left(leftChild), right(rightChild) {}
 
 	bool isLeaf()
 	{
-		return (left == NULL) && (right == NULL);
+		return (left == nullptr) && (right == nullptr);
 	}
 
 	void serialize(Serializer write)
@@ -19,14 +19,14 @@ public:
 		char isNull = 'X';
 		char notNull = 'O';
 		//Write out a character to denote a branch as null
-		if (this->left == NULL)
+		if (this->left == nullptr)
 			write.IO<char>(isNull);
 		else
 		{
 			write.IO<char>(notNull);
 			this->left->serialize(write);
 		}
-		if (this->right == NULL)
+		if (this->right == nullptr)
 			write.IO<char>(isNull);
 		else
 		{
@@ -42,13 +42,13 @@ public:
 		char isNull = 0x0;
 		read.IO<char>(isNull);
 		if (isNull == 'X')
-			node->left = NULL;
+			node->left = nullptr;
 		else
 			node->left = BinaryNode::reconstruct(read);
 
 		read.IO<char>(isNull);
 		if (isNull == 'X')
-			node->right = NULL;
+			node->right = nullptr;
 		else
 			node->right = BinaryNode::reconstruct(read);
 
@@ -63,7 +63,7 @@ public:
 	{
 		root = nullptr;
 	}
-	
+
 	BinaryTree(BinaryNode<T>* rootNode)
 	{
 		root = rootNode;
@@ -83,7 +83,7 @@ public:
 	{
 		return find(value, this->root);
 	}
-	
+
 	BinaryNode<T>* getRoot()
 	{
 		return root;
@@ -93,7 +93,7 @@ public:
 	{
 		this->root->serialize(write);
 	}
-	
+
 	static BinaryTree<T>* reconstruct(Serializer read)
 	{
 		BinaryTree<T>* tree = new BinaryTree<T>();
@@ -103,7 +103,7 @@ public:
 
 	BinaryNode<T>* findLeaf(BinaryNode<T>* currentNode, char huffmanBit)
 	{
-		if (currentNode == NULL)
+		if (currentNode == nullptr)
 			currentNode = root;
 		if (huffmanBit == '0')
 			return currentNode->left;
@@ -116,12 +116,12 @@ private:
 
 	T* insert(T& newData, BinaryNode<T>* &node)
 	{
-		T* returnVal = NULL;
+		T* returnVal = nullptr;
 
 		//Base Case: If we don't have a node, then we insert here
-		if (node == NULL)
+		if (node == nullptr)
 		{
-			node = new BinaryNode<T>(newData, NULL, NULL);
+			node = new BinaryNode<T>(newData, nullptr, nullptr);
 			returnVal = &(node->data);
 		}
 
@@ -140,7 +140,7 @@ private:
 
 	T* find(T& value, BinaryNode<T> *node)
 	{
-		if (node != NULL)
+		if (node != nullptr)
 		{
 			//Is this our value? If so, return the node.
 			if (value == node->data)
@@ -158,13 +158,13 @@ private:
 		}
 		else
 		{
-			return NULL;
+			return nullptr;
 		}
 	}
 
 	void clearTree(BinaryNode<T> *node)
 	{
-		if (node != NULL)
+		if (node != nullptr)
 		{
 			clearTree(node->right);   // Recursively clear the right sub-tree
 			clearTree(node->left);   // Recursively clear the left sub-tree
