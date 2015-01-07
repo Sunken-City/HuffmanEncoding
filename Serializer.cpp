@@ -11,7 +11,7 @@ Serializer::Serializer(string fileName, bool readingMode)
 	//Set up the buffer to ensure proper output
 	setvbuf(file, NULL, _IOFBF, BUFSIZ);
 	this->readingMode = readingMode;
-#pragma warning(push)
+#pragma warning(pop)
 }
 
 void Serializer::close()

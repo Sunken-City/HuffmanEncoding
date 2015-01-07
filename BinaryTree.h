@@ -9,6 +9,8 @@ public:
 	BinaryNode(T payload, BinaryNode* leftChild, BinaryNode* rightChild) : data(payload), left(leftChild), right(rightChild) {}
 	char isNull = 'X';
 	char notNull = 'O';
+	char nodeIsLeaf = 'L';
+	char nodeIsNotLeaf = 'N';
 
 	bool isLeaf()
 	{
@@ -28,17 +30,25 @@ public:
 
 	void serialize(Serializer write)
 	{
-		this->data.serialize(write);
-		//Write out a character to denote a branch as null
-		serializeChild(this->left, write);
-		serializeChild(this->right, write);
+		if (this->isLeaf())
+		{
+			write.IO<char>(nodeIsLeaf);
+			this->data.serialize(write);
+		}
+		else
+		{
+			write.IO<char>(nodeIsNotLeaf);
+			//Write out a character to denote a branch as null
+			serializeChild(this->left, write);
+			serializeChild(this->right, write);
+		}
 	}
 	BinaryNode<T>* reconstructChild(Serializer read)
 	{
 		BinaryNode<T>* child = nullptr;
-		char isNull = 0x0;
-		read.IO<char>(isNull);
-		if (isNull == 'O')
+		char isNodeNull = 0x0;
+		read.IO<char>(isNodeNull);
+		if (isNodeNull == 'O')
 			child = BinaryNode::reconstruct(read);
 		return child;
 	}
@@ -46,10 +56,17 @@ public:
 	BinaryNode<T>* reconstruct(Serializer read)
 	{
 		BinaryNode<T>* node = new BinaryNode<T>();
-		node->data.reconstruct(read);
-		node->left = reconstructChild(read);
-		node->right = reconstructChild(read);
-
+		char isNodeLeaf = 0x0;
+		read.IO<char>(isNodeLeaf);
+		if (isNodeLeaf == 'L')
+		{
+			node->data.reconstruct(read);
+		}
+		else
+		{
+			node->left = reconstructChild(read);
+			node->right = reconstructChild(read);
+		}
 		return node;
 	}
 };
@@ -105,7 +122,7 @@ public:
 			currentNode = root;
 		if (huffmanBit == '0')
 			return currentNode->left;
-		else //if (bit == '1')
+		else
 			return currentNode->right;
 	}
 
