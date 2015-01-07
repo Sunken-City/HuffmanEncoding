@@ -1,7 +1,15 @@
 #include "stdafx.h"
 #include "FileCompressor.h"
 
-FileCompressor::FileCompressor(string fileName)
+FileCompressor::FileCompressor(string inputFileName, string outputFileName)
+{
+	this->inputFileName = inputFileName;
+	this->outputFileName = outputFileName;
+	write = new Serializer(outputFileName, false);
+	read = new Serializer(inputFileName, true);
+}
+
+void FileCompressor::readInputFile(string fileName)
 {
 	ifstream file;
 	file.open(fileName, ios::in | ios::binary);
@@ -46,6 +54,7 @@ __int8 FileCompressor::popBit(queue<__int8>* bitstream)
 
 void FileCompressor::compress()
 {
+	readInputFile(inputFileName);
 	string* huffmanHash = *this->createTree();
 	//Using an 8 bit int for the queue, since each BIT
 	//is represented by 4 BYTES otherwise
@@ -74,7 +83,7 @@ void FileCompressor::compress()
 		{
 			nextByte = nextByte | (popBit(&bitstream) << i);
 		}
-		write.IO<byte>(nextByte);
+		write->IO<byte>(nextByte);
 	}
 	nextByte = 0;
 	//Write out the last few bits and add junk bits as necessary.
@@ -86,9 +95,9 @@ void FileCompressor::compress()
 		else
 			nextByte = nextByte | (0 << i);
 	}
-	write.IO<byte>(nextByte);
-	write.IO<byte>(junkBits);
-	write.close();
+	write->IO<byte>(nextByte);
+	write->IO<byte>(junkBits);
+	write->close();
 }
 
 void FileCompressor::decompress()
@@ -99,14 +108,13 @@ void FileCompressor::decompress()
 
 	//The first byte needs to be read outside the loop, because feof doesn't
 	//set a flag unless another read is attempted past the end of the file
-	read.IO<char>(nextByte);
-	while (read.hasNext())
+	read->IO<char>(nextByte);
+	while (read->hasNext())
 	{
 		bytestream.push(nextByte);
-		read.IO<char>(nextByte);
+		read->IO<char>(nextByte);
 	}
 
-	Serializer write = Serializer("output.jpg", false);
 	string treePath = "";
 	int validBits = 8;
 	node* node = nullptr;
@@ -124,12 +132,12 @@ void FileCompressor::decompress()
 			node = tree->findLeaf(node, (char)(nextBit + (int)'0'));
 			if (node->isLeaf())
 			{
-				write.IO<char>(node->data.byte);
+				write->IO<char>(node->data.byte);
 				node = nullptr; //Start again from the root node
 			}
 		}
 	}
-	write.close();
+	write->close();
 }
 
 string** FileCompressor::createTree()

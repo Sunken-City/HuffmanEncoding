@@ -8,8 +8,7 @@ class Serializeable
 public:
 	static int null;
 	static int notNull;
-	virtual void serialize(Serializer write) = 0;
-	//virtual void reconstruct(Serializer read) = 0;
+	virtual void serialize(Serializer* write) = 0;
 };
 
 class InvalidHeaderException : public std::runtime_error {

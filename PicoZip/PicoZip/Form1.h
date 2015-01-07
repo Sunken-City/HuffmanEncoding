@@ -320,12 +320,14 @@ namespace PicoZip {
 
 		System::Void compressButton_Click(System::Object^  sender, System::EventArgs^  e)
 		{
-			FileCompressor file = FileCompressor(StdStr(this->compressFileNameBox->Text));
+			FileCompressor file = FileCompressor(StdStr(this->compressFileNameBox->Text), StdStr(this->compressSaveBox->Text));
 			file.compress();
 		}
 
 		System::Void decompressButton_Click(System::Object^  sender, System::EventArgs^  e)
 		{
+			FileCompressor file = FileCompressor(StdStr(this->decompressFileNameBox->Text), StdStr(this->decompressSaveBox->Text));
+			file.decompress();
 		}
 
 	};

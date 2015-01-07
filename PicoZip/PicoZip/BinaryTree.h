@@ -17,47 +17,47 @@ public:
 		return (left == nullptr) && (right == nullptr);
 	}
 
-	void serializeChild(BinaryNode* child, Serializer write)
+	void serializeChild(BinaryNode* child, Serializer* write)
 	{
 		if (child == nullptr)
-			write.IO<char>(isNull);
+			write->IO<char>(isNull);
 		else
 		{
-			write.IO<char>(notNull);
+			write->IO<char>(notNull);
 			child->serialize(write);
 		}
 	}
 
-	void serialize(Serializer write)
+	void serialize(Serializer* write)
 	{
 		if (this->isLeaf())
 		{
-			write.IO<char>(nodeIsLeaf);
+			write->IO<char>(nodeIsLeaf);
 			this->data.serialize(write);
 		}
 		else
 		{
-			write.IO<char>(nodeIsNotLeaf);
+			write->IO<char>(nodeIsNotLeaf);
 			//Write out a character to denote a branch as null
 			serializeChild(this->left, write);
 			serializeChild(this->right, write);
 		}
 	}
-	BinaryNode<T>* reconstructChild(Serializer read)
+	BinaryNode<T>* reconstructChild(Serializer* read)
 	{
 		BinaryNode<T>* child = nullptr;
 		char isNodeNull = 0x0;
-		read.IO<char>(isNodeNull);
+		read->IO<char>(isNodeNull);
 		if (isNodeNull == 'O')
 			child = BinaryNode::reconstruct(read);
 		return child;
 	}
 
-	BinaryNode<T>* reconstruct(Serializer read)
+	BinaryNode<T>* reconstruct(Serializer* read)
 	{
 		BinaryNode<T>* node = new BinaryNode<T>();
 		char isNodeLeaf = 0x0;
-		read.IO<char>(isNodeLeaf);
+		read->IO<char>(isNodeLeaf);
 		if (isNodeLeaf == 'L')
 		{
 			node->data.reconstruct(read);
@@ -104,12 +104,12 @@ public:
 		return root;
 	}
 
-	void serialize(Serializer write)
+	void serialize(Serializer* write)
 	{
 		this->root->serialize(write);
 	}
 
-	static BinaryTree<T>* reconstruct(Serializer read)
+	static BinaryTree<T>* reconstruct(Serializer* read)
 	{
 		BinaryTree<T>* tree = new BinaryTree<T>();
 		tree->root = tree->root->reconstruct(read);
