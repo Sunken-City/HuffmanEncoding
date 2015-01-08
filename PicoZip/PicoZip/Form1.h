@@ -42,23 +42,12 @@ namespace PicoZip {
 	private: System::Windows::Forms::Label^  compressFileNameLabel;
 	private: System::Windows::Forms::TextBox^  compressFileNameBox;
 
-
 	private: System::Windows::Forms::TabPage^  Decompress;
 	private: System::Windows::Forms::Panel^  panel1;
 	private: System::Windows::Forms::Button^  compressButton;
 
-
-
-
 	private: System::Windows::Forms::Button^  decompressButton;
-
-
-
-
-
-
-
-
+	
 	private: System::Windows::Forms::Panel^  panel4;
 	private: System::Windows::Forms::Label^  decompressFileNameLabel;
 	private: System::Windows::Forms::TextBox^  decompressFileNameBox;
@@ -69,15 +58,41 @@ namespace PicoZip {
 	private: System::Windows::Forms::Button^  button2;
 	private: System::Windows::Forms::ProgressBar^  compressProgressBar;
 
-
-
-
 	private:
 		/// <summary>
 		/// Required designer variable.
 		/// </summary>
 		System::ComponentModel::Container ^components;
 
+
+		ref class CompressWrapper
+		{
+		public:
+			String^ inputFileName;
+			String^ outputFileName;
+			CompressWrapper(String^ inputFileName, String^ outputFileName)
+			{
+				this->inputFileName = System::String::Copy(inputFileName);
+				this->outputFileName = System::String::Copy(outputFileName);
+			}
+			CompressWrapper(CompressWrapper^ wrapper)
+			{
+				this->inputFileName = wrapper->inputFileName;
+				this->outputFileName = wrapper->outputFileName;
+			}
+			void startCompression()
+			{
+				FileCompressor* file = new FileCompressor(StdStr(this->inputFileName), StdStr(this->outputFileName));
+				file->compress();
+			}
+
+			//Helper function to cross the interop boundary between managed and unmanaged code. Fascinating!
+			std::string StdStr(String^ RTstring)
+			{
+				return msclr::interop::marshal_as<std::string>(RTstring);
+			}
+
+		};
 #pragma region Windows Form Designer generated code
 		/// <summary>
 		/// Required method for Designer support - do not modify
@@ -291,12 +306,6 @@ namespace PicoZip {
 #pragma endregion
 
 	private:
-		//Helper function to cross the interop boundary between managed and unmanaged code. Fascinating!
-		std::string StdStr(String^ RTstring)
-		{
-			return msclr::interop::marshal_as<std::string>(RTstring);
-		}
-
 		System::Void compressButton_Click(System::Object^  sender, System::EventArgs^  e)
 		{
 			// Displays a SaveFileDialog so the user can pick where to output the compressed file.
@@ -307,8 +316,13 @@ namespace PicoZip {
 			// If the file name is not an empty string, open it for saving.
 			if (saveFileDialog1->FileName != "")
 			{
-				FileCompressor file = FileCompressor(StdStr(this->compressFileNameBox->Text), StdStr(saveFileDialog1->FileName));
-				file.compress();
+				compressProgressBar->Maximum = 100;
+				compressProgressBar->Step = 1;
+				compressProgressBar->Value = 0;
+				CompressWrapper^ compress = gcnew CompressWrapper(this->compressFileNameBox->Text, saveFileDialog1->FileName);
+				System::Threading::ThreadStart^ threadDelegate = gcnew System::Threading::ThreadStart(compress, &CompressWrapper::startCompression);
+				System::Threading::Thread^ compressionThread = gcnew System::Threading::Thread(threadDelegate);
+				compressionThread->Start();
 			}
 			else
 			{
@@ -326,8 +340,8 @@ namespace PicoZip {
 			// If the file name is not an empty string, open it for saving.
 			if (saveFileDialog1->FileName != "")
 			{
-				FileCompressor file = FileCompressor(StdStr(this->decompressFileNameBox->Text), StdStr(saveFileDialog1->FileName));
-				file.decompress();
+				//FileCompressor file = FileCompressor(StdStr(this->decompressFileNameBox->Text), StdStr(saveFileDialog1->FileName));
+				//file.decompress();
 			}
 			else
 			{
@@ -351,4 +365,3 @@ namespace PicoZip {
 		}
 	};
 }
-
