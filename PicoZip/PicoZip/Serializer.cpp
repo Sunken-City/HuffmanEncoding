@@ -14,6 +14,11 @@ Serializer::Serializer(string fileName, bool readingMode)
 #pragma warning(pop)
 }
 
+Serializer::~Serializer()
+{
+	close();
+}
+
 void Serializer::close()
 {
 	fclose(this->file);

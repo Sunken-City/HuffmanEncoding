@@ -8,6 +8,7 @@ class Serializer
 {
 public:
 	Serializer(string fileName, bool readingMode);
+	virtual ~Serializer();
 	template<class T> void IO(T& IOable);
 	void close();
 	bool hasNext();
