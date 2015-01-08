@@ -114,6 +114,7 @@ void FileCompressor::decompress()
 		bytestream.push(nextByte);
 		read->IO<char>(nextByte);
 	}
+	read->close();
 
 	string treePath = "";
 	int validBits = 8;
