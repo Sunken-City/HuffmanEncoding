@@ -80,10 +80,17 @@ namespace PicoZip {
 				this->inputFileName = wrapper->inputFileName;
 				this->outputFileName = wrapper->outputFileName;
 			}
+
 			void startCompression()
 			{
 				FileCompressor* file = new FileCompressor(StdStr(this->inputFileName), StdStr(this->outputFileName));
 				file->compress();
+			}
+
+			void startDecompression()
+			{
+				FileCompressor* file = new FileCompressor(StdStr(this->inputFileName), StdStr(this->outputFileName));
+				file->decompress();
 			}
 
 			//Helper function to cross the interop boundary between managed and unmanaged code. Fascinating!
@@ -340,8 +347,13 @@ namespace PicoZip {
 			// If the file name is not an empty string, open it for saving.
 			if (saveFileDialog1->FileName != "")
 			{
-				//FileCompressor file = FileCompressor(StdStr(this->decompressFileNameBox->Text), StdStr(saveFileDialog1->FileName));
-				//file.decompress();
+				compressProgressBar->Maximum = 100;
+				compressProgressBar->Step = 1;
+				compressProgressBar->Value = 0;
+				CompressWrapper^ compress = gcnew CompressWrapper(this->decompressFileNameBox->Text, saveFileDialog1->FileName);
+				System::Threading::ThreadStart^ threadDelegate = gcnew System::Threading::ThreadStart(compress, &CompressWrapper::startDecompression);
+				System::Threading::Thread^ compressionThread = gcnew System::Threading::Thread(threadDelegate);
+				compressionThread->Start();
 			}
 			else
 			{
