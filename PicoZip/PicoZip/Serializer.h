@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdio>
 #include <string>
+#include <stdexcept>
 
 using namespace std;
 
@@ -25,3 +26,8 @@ template<class T> void Serializer::IO(T& IOable)
 	else
 		fwrite(&IOable, sizeof(T), 1, this->file);
 }
+
+class InvalidFileException : public std::runtime_error {
+public:
+	InvalidFileException() : std::runtime_error("InvalidFileException") { }
+};
