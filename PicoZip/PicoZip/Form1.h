@@ -67,6 +67,7 @@ namespace PicoZip {
 
 	private: System::Windows::Forms::SaveFileDialog^  saveFileDialog1;
 	private: System::Windows::Forms::Button^  button2;
+	private: System::Windows::Forms::ProgressBar^  compressProgressBar;
 
 
 
@@ -87,6 +88,7 @@ namespace PicoZip {
 			System::ComponentModel::ComponentResourceManager^  resources = (gcnew System::ComponentModel::ComponentResourceManager(Form1::typeid));
 			this->tabControl = (gcnew System::Windows::Forms::TabControl());
 			this->Compress = (gcnew System::Windows::Forms::TabPage());
+			this->compressProgressBar = (gcnew System::Windows::Forms::ProgressBar());
 			this->compressButton = (gcnew System::Windows::Forms::Button());
 			this->panel1 = (gcnew System::Windows::Forms::Panel());
 			this->button1 = (gcnew System::Windows::Forms::Button());
@@ -116,29 +118,38 @@ namespace PicoZip {
 			this->tabControl->Margin = System::Windows::Forms::Padding(4);
 			this->tabControl->Name = L"tabControl";
 			this->tabControl->SelectedIndex = 0;
-			this->tabControl->Size = System::Drawing::Size(379, 322);
+			this->tabControl->Size = System::Drawing::Size(482, 253);
 			this->tabControl->TabIndex = 0;
 			// 
 			// Compress
 			// 
+			this->Compress->Controls->Add(this->compressProgressBar);
 			this->Compress->Controls->Add(this->compressButton);
 			this->Compress->Controls->Add(this->panel1);
 			this->Compress->Location = System::Drawing::Point(4, 25);
 			this->Compress->Margin = System::Windows::Forms::Padding(4);
 			this->Compress->Name = L"Compress";
 			this->Compress->Padding = System::Windows::Forms::Padding(4);
-			this->Compress->Size = System::Drawing::Size(371, 293);
+			this->Compress->Size = System::Drawing::Size(474, 224);
 			this->Compress->TabIndex = 0;
 			this->Compress->Text = L"Compress";
 			this->Compress->UseVisualStyleBackColor = true;
 			// 
+			// compressProgressBar
+			// 
+			this->compressProgressBar->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Left));
+			this->compressProgressBar->Location = System::Drawing::Point(8, 162);
+			this->compressProgressBar->Name = L"compressProgressBar";
+			this->compressProgressBar->Size = System::Drawing::Size(458, 23);
+			this->compressProgressBar->TabIndex = 5;
+			// 
 			// compressButton
 			// 
 			this->compressButton->Dock = System::Windows::Forms::DockStyle::Bottom;
-			this->compressButton->Location = System::Drawing::Point(4, 261);
+			this->compressButton->Location = System::Drawing::Point(4, 192);
 			this->compressButton->Margin = System::Windows::Forms::Padding(4);
 			this->compressButton->Name = L"compressButton";
-			this->compressButton->Size = System::Drawing::Size(363, 28);
+			this->compressButton->Size = System::Drawing::Size(466, 28);
 			this->compressButton->TabIndex = 4;
 			this->compressButton->Text = L"Compress";
 			this->compressButton->UseVisualStyleBackColor = true;
@@ -153,23 +164,24 @@ namespace PicoZip {
 			this->panel1->Location = System::Drawing::Point(4, 4);
 			this->panel1->Margin = System::Windows::Forms::Padding(4);
 			this->panel1->Name = L"panel1";
-			this->panel1->Size = System::Drawing::Size(363, 123);
+			this->panel1->Size = System::Drawing::Size(466, 123);
 			this->panel1->TabIndex = 2;
 			// 
 			// button1
 			// 
-			this->button1->Location = System::Drawing::Point(206, 78);
+			this->button1->Anchor = System::Windows::Forms::AnchorStyles::Right;
+			this->button1->Location = System::Drawing::Point(351, 78);
 			this->button1->Name = L"button1";
-			this->button1->Size = System::Drawing::Size(75, 23);
+			this->button1->Size = System::Drawing::Size(110, 35);
 			this->button1->TabIndex = 2;
 			this->button1->Text = L"Browse";
 			this->button1->UseVisualStyleBackColor = true;
-			this->button1->Click += gcnew System::EventHandler(this, &Form1::button1_Click);
+			this->button1->Click += gcnew System::EventHandler(this, &Form1::compressBrowse);
 			// 
 			// compressFileNameLabel
 			// 
 			this->compressFileNameLabel->AutoSize = true;
-			this->compressFileNameLabel->Location = System::Drawing::Point(-4, 53);
+			this->compressFileNameLabel->Location = System::Drawing::Point(5, 52);
 			this->compressFileNameLabel->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
 			this->compressFileNameLabel->Name = L"compressFileNameLabel";
 			this->compressFileNameLabel->Size = System::Drawing::Size(117, 17);
@@ -178,10 +190,11 @@ namespace PicoZip {
 			// 
 			// compressFileNameBox
 			// 
-			this->compressFileNameBox->Location = System::Drawing::Point(129, 49);
+			this->compressFileNameBox->Anchor = System::Windows::Forms::AnchorStyles::Right;
+			this->compressFileNameBox->Location = System::Drawing::Point(130, 49);
 			this->compressFileNameBox->Margin = System::Windows::Forms::Padding(4);
 			this->compressFileNameBox->Name = L"compressFileNameBox";
-			this->compressFileNameBox->Size = System::Drawing::Size(225, 22);
+			this->compressFileNameBox->Size = System::Drawing::Size(331, 22);
 			this->compressFileNameBox->TabIndex = 0;
 			// 
 			// Decompress
@@ -192,7 +205,7 @@ namespace PicoZip {
 			this->Decompress->Margin = System::Windows::Forms::Padding(4);
 			this->Decompress->Name = L"Decompress";
 			this->Decompress->Padding = System::Windows::Forms::Padding(4);
-			this->Decompress->Size = System::Drawing::Size(371, 293);
+			this->Decompress->Size = System::Drawing::Size(474, 224);
 			this->Decompress->TabIndex = 1;
 			this->Decompress->Text = L"Decompress";
 			this->Decompress->UseVisualStyleBackColor = true;
@@ -200,10 +213,10 @@ namespace PicoZip {
 			// decompressButton
 			// 
 			this->decompressButton->Dock = System::Windows::Forms::DockStyle::Bottom;
-			this->decompressButton->Location = System::Drawing::Point(4, 261);
+			this->decompressButton->Location = System::Drawing::Point(4, 192);
 			this->decompressButton->Margin = System::Windows::Forms::Padding(4);
 			this->decompressButton->Name = L"decompressButton";
-			this->decompressButton->Size = System::Drawing::Size(363, 28);
+			this->decompressButton->Size = System::Drawing::Size(466, 28);
 			this->decompressButton->TabIndex = 7;
 			this->decompressButton->Text = L"Decompress";
 			this->decompressButton->UseVisualStyleBackColor = true;
@@ -218,23 +231,24 @@ namespace PicoZip {
 			this->panel4->Location = System::Drawing::Point(4, 4);
 			this->panel4->Margin = System::Windows::Forms::Padding(4);
 			this->panel4->Name = L"panel4";
-			this->panel4->Size = System::Drawing::Size(363, 123);
+			this->panel4->Size = System::Drawing::Size(466, 123);
 			this->panel4->TabIndex = 5;
 			// 
 			// button2
 			// 
-			this->button2->Location = System::Drawing::Point(197, 78);
+			this->button2->Anchor = System::Windows::Forms::AnchorStyles::Right;
+			this->button2->Location = System::Drawing::Point(352, 78);
 			this->button2->Name = L"button2";
-			this->button2->Size = System::Drawing::Size(75, 23);
+			this->button2->Size = System::Drawing::Size(110, 35);
 			this->button2->TabIndex = 3;
 			this->button2->Text = L"Browse";
 			this->button2->UseVisualStyleBackColor = true;
-			this->button2->Click += gcnew System::EventHandler(this, &Form1::button2_Click_1);
+			this->button2->Click += gcnew System::EventHandler(this, &Form1::decompressBrowse);
 			// 
 			// decompressFileNameLabel
 			// 
 			this->decompressFileNameLabel->AutoSize = true;
-			this->decompressFileNameLabel->Location = System::Drawing::Point(-4, 53);
+			this->decompressFileNameLabel->Location = System::Drawing::Point(5, 52);
 			this->decompressFileNameLabel->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
 			this->decompressFileNameLabel->Name = L"decompressFileNameLabel";
 			this->decompressFileNameLabel->Size = System::Drawing::Size(133, 17);
@@ -243,10 +257,11 @@ namespace PicoZip {
 			// 
 			// decompressFileNameBox
 			// 
-			this->decompressFileNameBox->Location = System::Drawing::Point(129, 49);
+			this->decompressFileNameBox->Anchor = System::Windows::Forms::AnchorStyles::Right;
+			this->decompressFileNameBox->Location = System::Drawing::Point(146, 49);
 			this->decompressFileNameBox->Margin = System::Windows::Forms::Padding(4);
 			this->decompressFileNameBox->Name = L"decompressFileNameBox";
-			this->decompressFileNameBox->Size = System::Drawing::Size(225, 22);
+			this->decompressFileNameBox->Size = System::Drawing::Size(316, 22);
 			this->decompressFileNameBox->TabIndex = 0;
 			// 
 			// openFileDialog1
@@ -257,7 +272,7 @@ namespace PicoZip {
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(379, 322);
+			this->ClientSize = System::Drawing::Size(482, 253);
 			this->Controls->Add(this->tabControl);
 			this->Icon = (cli::safe_cast<System::Drawing::Icon^>(resources->GetObject(L"$this.Icon")));
 			this->Margin = System::Windows::Forms::Padding(4);
@@ -276,6 +291,7 @@ namespace PicoZip {
 #pragma endregion
 
 	private:
+		//Helper function to cross the interop boundary between managed and unmanaged code. Fascinating!
 		std::string StdStr(String^ RTstring)
 		{
 			return msclr::interop::marshal_as<std::string>(RTstring);
@@ -319,21 +335,20 @@ namespace PicoZip {
 			}
 		}
 
-	private: System::Void button1_Click(System::Object^  sender, System::EventArgs^  e)
-	{
-		if (openFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::OK)
+		System::Void decompressBrowse(System::Object^  sender, System::EventArgs^  e)
 		{
-			this->compressFileNameBox->Text = openFileDialog1->FileName;
+			if (openFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::OK)
+			{
+				this->decompressFileNameBox->Text = openFileDialog1->FileName;
+			}
 		}
-	}
-
-	private: System::Void button2_Click_1(System::Object^  sender, System::EventArgs^  e) 
-	{
-		if (openFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::OK)
+		System::Void compressBrowse(System::Object^  sender, System::EventArgs^  e)
 		{
-			this->decompressFileNameBox->Text = openFileDialog1->FileName;
+			if (openFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::OK)
+			{
+				this->compressFileNameBox->Text = openFileDialog1->FileName;
+			}
 		}
-	}
-};
+	};
 }
 

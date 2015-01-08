@@ -12,6 +12,7 @@ class FileCompressor
 {
 public:
 	FileCompressor(string inputFileName, string outputFileName);
+	virtual ~FileCompressor();
 	byte** getFileBytes();
 	int getFileLength();
 	void compress();
@@ -19,7 +20,6 @@ public:
 	string** createTree();
 
 private:
-	ifstream* inputFile;
 	string inputFileName;
 	string outputFileName;
 	byte* fileBytes;
