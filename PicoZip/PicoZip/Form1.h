@@ -68,28 +68,24 @@ namespace PicoZip {
 		ref class CompressWrapper
 		{
 		public:
-			String^ inputFileName;
-			String^ outputFileName;
+			FileCompressor* file;
 			CompressWrapper(String^ inputFileName, String^ outputFileName)
 			{
-				this->inputFileName = System::String::Copy(inputFileName);
-				this->outputFileName = System::String::Copy(outputFileName);
+				file = new FileCompressor(StdStr(inputFileName), StdStr(outputFileName));
 			}
-			CompressWrapper(CompressWrapper^ wrapper)
+
+			~CompressWrapper()
 			{
-				this->inputFileName = wrapper->inputFileName;
-				this->outputFileName = wrapper->outputFileName;
+				delete file;
 			}
 
 			void startCompression()
 			{
-				FileCompressor* file = new FileCompressor(StdStr(this->inputFileName), StdStr(this->outputFileName));
 				file->compress();
 			}
 
 			void startDecompression()
 			{
-				FileCompressor* file = new FileCompressor(StdStr(this->inputFileName), StdStr(this->outputFileName));
 				file->decompress();
 			}
 
@@ -363,6 +359,8 @@ namespace PicoZip {
 
 		System::Void decompressBrowse(System::Object^  sender, System::EventArgs^  e)
 		{
+			openFileDialog1->Filter = "PicoZip Compressed File|*.pico";
+			openFileDialog1->Title = "Decompress a Compressed File";
 			if (openFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::OK)
 			{
 				this->decompressFileNameBox->Text = openFileDialog1->FileName;
@@ -370,6 +368,8 @@ namespace PicoZip {
 		}
 		System::Void compressBrowse(System::Object^  sender, System::EventArgs^  e)
 		{
+			openFileDialog1->Filter = "Any File|*.*";
+			openFileDialog1->Title = "Choose a file to Compress";
 			if (openFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::OK)
 			{
 				this->compressFileNameBox->Text = openFileDialog1->FileName;
