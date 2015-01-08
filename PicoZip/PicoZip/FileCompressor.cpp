@@ -7,6 +7,7 @@ FileCompressor::FileCompressor(string inputFileName, string outputFileName)
 	this->outputFileName = outputFileName;
 	write = new Serializer(outputFileName, false);
 	read = new Serializer(inputFileName, true);
+	progress = 0;
 }
 
 FileCompressor::~FileCompressor()
@@ -59,8 +60,11 @@ __int8 FileCompressor::popBit(queue<__int8>* bitstream)
 
 void FileCompressor::compress()
 {
+	progress = 5;
 	readInputFile(inputFileName);
+	progress = 20;
 	string* huffmanHash = *this->createTree();
+	progress = 40;
 	//Using an 8 bit int for the queue, since each BIT
 	//is represented by 4 BYTES otherwise
 	queue<__int8> bitstream = queue<__int8>();
@@ -78,6 +82,7 @@ void FileCompressor::compress()
 			bitstream.push(code[j] - '0');
 		}
 	}
+	progress = 60;
 	//Once we have the bitstream, we can now pull out bytes from it and 
 	//write them to the compressed file.
 	byte nextByte;
@@ -90,6 +95,7 @@ void FileCompressor::compress()
 		}
 		write->IO<byte>(nextByte);
 	}
+	progress = 90;
 	nextByte = 0;
 	//Write out the last few bits and add junk bits as necessary.
 	byte junkBits = '8' - bitstream.size();
@@ -103,11 +109,14 @@ void FileCompressor::compress()
 	write->IO<byte>(nextByte);
 	write->IO<byte>(junkBits);
 	write->close();
+	progress = 100;
 }
 
 void FileCompressor::decompress()
 {
+	progress = 5;
 	BinaryTree<HuffmanData>* tree = BinaryTree<HuffmanData>::reconstruct(read);
+	progress = 20;
 	queue<char> bytestream = queue<char>();
 	char nextByte;
 
@@ -120,7 +129,7 @@ void FileCompressor::decompress()
 		read->IO<char>(nextByte);
 	}
 	read->close();
-
+	progress = 50;
 	string treePath = "";
 	int validBits = 8;
 	node* node = nullptr;
@@ -143,7 +152,9 @@ void FileCompressor::decompress()
 			}
 		}
 	}
+	progress = 90;
 	write->close();
+	progress = 100;
 }
 
 string** FileCompressor::createTree()
@@ -244,4 +255,9 @@ vector<HuffmanData>* FileCompressor::sortBytes(byte** file, int length)
 	sort(sortedFrequencies->begin(), sortedFrequencies->end());
 
 	return sortedFrequencies;
+}
+
+int FileCompressor::getProgress()
+{
+	return progress;
 }

@@ -18,12 +18,14 @@ public:
 	void compress();
 	void decompress();
 	string** createTree();
+	int getProgress();
 
 private:
 	string inputFileName;
 	string outputFileName;
 	byte* fileBytes;
 	int length;
+	int progress;
 	Serializer* write;
 	Serializer* read;
 

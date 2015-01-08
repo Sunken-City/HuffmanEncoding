@@ -57,6 +57,11 @@ namespace PicoZip {
 	private: System::Windows::Forms::SaveFileDialog^  saveFileDialog1;
 	private: System::Windows::Forms::Button^  button2;
 	private: System::Windows::Forms::ProgressBar^  compressProgressBar;
+	private: System::Windows::Forms::Label^  progressBarLabel;
+	private: System::Windows::Forms::Label^  decompressProgressBarLabel;
+	private: System::Windows::Forms::ProgressBar^  decompressProgressBar;
+
+
 
 	private:
 		/// <summary>
@@ -69,6 +74,8 @@ namespace PicoZip {
 		{
 		public:
 			FileCompressor* file;
+			bool busy = true;
+
 			CompressWrapper(String^ inputFileName, String^ outputFileName)
 			{
 				file = new FileCompressor(StdStr(inputFileName), StdStr(outputFileName));
@@ -81,14 +88,33 @@ namespace PicoZip {
 
 			void startCompression()
 			{
+				busy = true;
 				file->compress();
+				busy = false;
 			}
 
 			void startDecompression()
 			{
+				busy = true;
 				file->decompress();
+				busy = false;
 			}
 
+			int checkProgress()
+			{
+				return file->getProgress();
+			}
+
+			String^ progressText()
+			{
+				//Not sure if I'm going to implement this yet.
+				return "";
+			}
+
+			bool isBusy()
+			{
+				return busy;
+			}
 			//Helper function to cross the interop boundary between managed and unmanaged code. Fascinating!
 			std::string StdStr(String^ RTstring)
 			{
@@ -106,6 +132,7 @@ namespace PicoZip {
 			System::ComponentModel::ComponentResourceManager^  resources = (gcnew System::ComponentModel::ComponentResourceManager(Form1::typeid));
 			this->tabControl = (gcnew System::Windows::Forms::TabControl());
 			this->Compress = (gcnew System::Windows::Forms::TabPage());
+			this->progressBarLabel = (gcnew System::Windows::Forms::Label());
 			this->compressProgressBar = (gcnew System::Windows::Forms::ProgressBar());
 			this->compressButton = (gcnew System::Windows::Forms::Button());
 			this->panel1 = (gcnew System::Windows::Forms::Panel());
@@ -120,6 +147,8 @@ namespace PicoZip {
 			this->decompressFileNameBox = (gcnew System::Windows::Forms::TextBox());
 			this->openFileDialog1 = (gcnew System::Windows::Forms::OpenFileDialog());
 			this->saveFileDialog1 = (gcnew System::Windows::Forms::SaveFileDialog());
+			this->decompressProgressBarLabel = (gcnew System::Windows::Forms::Label());
+			this->decompressProgressBar = (gcnew System::Windows::Forms::ProgressBar());
 			this->tabControl->SuspendLayout();
 			this->Compress->SuspendLayout();
 			this->panel1->SuspendLayout();
@@ -141,6 +170,7 @@ namespace PicoZip {
 			// 
 			// Compress
 			// 
+			this->Compress->Controls->Add(this->progressBarLabel);
 			this->Compress->Controls->Add(this->compressProgressBar);
 			this->Compress->Controls->Add(this->compressButton);
 			this->Compress->Controls->Add(this->panel1);
@@ -153,12 +183,20 @@ namespace PicoZip {
 			this->Compress->Text = L"Compress";
 			this->Compress->UseVisualStyleBackColor = true;
 			// 
+			// progressBarLabel
+			// 
+			this->progressBarLabel->AutoSize = true;
+			this->progressBarLabel->Location = System::Drawing::Point(12, 139);
+			this->progressBarLabel->Name = L"progressBarLabel";
+			this->progressBarLabel->Size = System::Drawing::Size(0, 17);
+			this->progressBarLabel->TabIndex = 6;
+			// 
 			// compressProgressBar
 			// 
 			this->compressProgressBar->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Left));
-			this->compressProgressBar->Location = System::Drawing::Point(8, 162);
+			this->compressProgressBar->Location = System::Drawing::Point(4, 162);
 			this->compressProgressBar->Name = L"compressProgressBar";
-			this->compressProgressBar->Size = System::Drawing::Size(458, 23);
+			this->compressProgressBar->Size = System::Drawing::Size(466, 23);
 			this->compressProgressBar->TabIndex = 5;
 			// 
 			// compressButton
@@ -217,6 +255,8 @@ namespace PicoZip {
 			// 
 			// Decompress
 			// 
+			this->Decompress->Controls->Add(this->decompressProgressBarLabel);
+			this->Decompress->Controls->Add(this->decompressProgressBar);
 			this->Decompress->Controls->Add(this->decompressButton);
 			this->Decompress->Controls->Add(this->panel4);
 			this->Decompress->Location = System::Drawing::Point(4, 25);
@@ -286,6 +326,22 @@ namespace PicoZip {
 			// 
 			this->openFileDialog1->FileName = L"openFileDialog1";
 			// 
+			// decompressProgressBarLabel
+			// 
+			this->decompressProgressBarLabel->AutoSize = true;
+			this->decompressProgressBarLabel->Location = System::Drawing::Point(12, 139);
+			this->decompressProgressBarLabel->Name = L"decompressProgressBarLabel";
+			this->decompressProgressBarLabel->Size = System::Drawing::Size(0, 17);
+			this->decompressProgressBarLabel->TabIndex = 9;
+			// 
+			// decompressProgressBar
+			// 
+			this->decompressProgressBar->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Left));
+			this->decompressProgressBar->Location = System::Drawing::Point(4, 162);
+			this->decompressProgressBar->Name = L"decompressProgressBar";
+			this->decompressProgressBar->Size = System::Drawing::Size(466, 23);
+			this->decompressProgressBar->TabIndex = 8;
+			// 
 			// Form1
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
@@ -298,9 +354,11 @@ namespace PicoZip {
 			this->Text = L"Pico Zip";
 			this->tabControl->ResumeLayout(false);
 			this->Compress->ResumeLayout(false);
+			this->Compress->PerformLayout();
 			this->panel1->ResumeLayout(false);
 			this->panel1->PerformLayout();
 			this->Decompress->ResumeLayout(false);
+			this->Decompress->PerformLayout();
 			this->panel4->ResumeLayout(false);
 			this->panel4->PerformLayout();
 			this->ResumeLayout(false);
@@ -309,6 +367,11 @@ namespace PicoZip {
 #pragma endregion
 
 	private:
+		void changeCursor(bool isWaiting)
+		{
+			Cursor->Current = isWaiting ? Cursors::WaitCursor : Cursors::Default;
+			Application::DoEvents();
+		}
 		System::Void compressButton_Click(System::Object^  sender, System::EventArgs^  e)
 		{
 			// Displays a SaveFileDialog so the user can pick where to output the compressed file.
@@ -322,10 +385,24 @@ namespace PicoZip {
 				compressProgressBar->Maximum = 100;
 				compressProgressBar->Step = 1;
 				compressProgressBar->Value = 0;
+
+				//Start up a thread to begin compressing
 				CompressWrapper^ compress = gcnew CompressWrapper(this->compressFileNameBox->Text, saveFileDialog1->FileName);
 				System::Threading::ThreadStart^ threadDelegate = gcnew System::Threading::ThreadStart(compress, &CompressWrapper::startCompression);
 				System::Threading::Thread^ compressionThread = gcnew System::Threading::Thread(threadDelegate);
 				compressionThread->Start();
+
+				//Update the progress bar as needed during the computation
+				changeCursor(true);
+				while (compress->isBusy())
+				{
+					compressProgressBar->Value = compress->checkProgress();
+					//decompressProgressBarLabel->Text = compress->progressText();
+				}
+				changeCursor(false);
+				MessageBox::Show("Compression Finished!");
+				compressProgressBar->Value = 0;
+
 			}
 			else
 			{
@@ -346,10 +423,21 @@ namespace PicoZip {
 				compressProgressBar->Maximum = 100;
 				compressProgressBar->Step = 1;
 				compressProgressBar->Value = 0;
-				CompressWrapper^ compress = gcnew CompressWrapper(this->decompressFileNameBox->Text, saveFileDialog1->FileName);
-				System::Threading::ThreadStart^ threadDelegate = gcnew System::Threading::ThreadStart(compress, &CompressWrapper::startDecompression);
+				CompressWrapper^ decompress = gcnew CompressWrapper(this->decompressFileNameBox->Text, saveFileDialog1->FileName);
+				System::Threading::ThreadStart^ threadDelegate = gcnew System::Threading::ThreadStart(decompress, &CompressWrapper::startDecompression);
 				System::Threading::Thread^ compressionThread = gcnew System::Threading::Thread(threadDelegate);
 				compressionThread->Start();
+
+				//Update the progress bar as needed during the computation
+				changeCursor(true);
+				while (decompress->isBusy())
+				{
+					decompressProgressBar->Value = decompress->checkProgress();
+					//decompressProgressBarLabel->Text = decompress->progressText();
+				}
+				changeCursor(false);
+				MessageBox::Show("Decompression Finished!");
+				decompressProgressBar->Value = 0;
 			}
 			else
 			{
