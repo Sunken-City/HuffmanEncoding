@@ -9,7 +9,14 @@ Serializer::Serializer(string fileName, bool readingMode)
 	else
 		this->file = fopen(fileName.c_str(), "wb");
 	//Set up the buffer to ensure proper output
-	setvbuf(file, NULL, _IOFBF, BUFSIZ);
+	try
+	{
+		setvbuf(file, NULL, _IOFBF, BUFSIZ);
+	}
+	catch (exception e)
+	{
+		throw new InvalidFileException();
+	}
 	this->readingMode = readingMode;
 #pragma warning(pop)
 }

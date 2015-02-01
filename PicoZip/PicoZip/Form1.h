@@ -40,7 +40,7 @@ namespace PicoZip {
 	protected:
 	private: System::Windows::Forms::TabPage^  Compress;
 	private: System::Windows::Forms::Label^  compressFileNameLabel;
-	private: System::Windows::Forms::TextBox^  compressFileNameBox;
+
 
 	private: System::Windows::Forms::TabPage^  Decompress;
 	private: System::Windows::Forms::Panel^  panel1;
@@ -50,7 +50,7 @@ namespace PicoZip {
 	
 	private: System::Windows::Forms::Panel^  panel4;
 	private: System::Windows::Forms::Label^  decompressFileNameLabel;
-	private: System::Windows::Forms::TextBox^  decompressFileNameBox;
+
 	private: System::Windows::Forms::Button^  button1;
 	private: System::Windows::Forms::OpenFileDialog^  openFileDialog1;
 
@@ -62,13 +62,17 @@ namespace PicoZip {
 	private: System::Windows::Forms::ProgressBar^  decompressProgressBar;
 
 
+	private: System::Windows::Forms::TextBox^  compressFileNameBox;
+	private: System::Windows::Forms::TextBox^  decompressFileNameBox;
+
+
+
 
 	private:
 		/// <summary>
 		/// Required designer variable.
 		/// </summary>
 		System::ComponentModel::Container ^components;
-
 
 		ref class CompressWrapper
 		{
@@ -122,6 +126,7 @@ namespace PicoZip {
 			}
 
 		};
+
 #pragma region Windows Form Designer generated code
 		/// <summary>
 		/// Required method for Designer support - do not modify
@@ -140,6 +145,8 @@ namespace PicoZip {
 			this->compressFileNameLabel = (gcnew System::Windows::Forms::Label());
 			this->compressFileNameBox = (gcnew System::Windows::Forms::TextBox());
 			this->Decompress = (gcnew System::Windows::Forms::TabPage());
+			this->decompressProgressBarLabel = (gcnew System::Windows::Forms::Label());
+			this->decompressProgressBar = (gcnew System::Windows::Forms::ProgressBar());
 			this->decompressButton = (gcnew System::Windows::Forms::Button());
 			this->panel4 = (gcnew System::Windows::Forms::Panel());
 			this->button2 = (gcnew System::Windows::Forms::Button());
@@ -147,8 +154,6 @@ namespace PicoZip {
 			this->decompressFileNameBox = (gcnew System::Windows::Forms::TextBox());
 			this->openFileDialog1 = (gcnew System::Windows::Forms::OpenFileDialog());
 			this->saveFileDialog1 = (gcnew System::Windows::Forms::SaveFileDialog());
-			this->decompressProgressBarLabel = (gcnew System::Windows::Forms::Label());
-			this->decompressProgressBar = (gcnew System::Windows::Forms::ProgressBar());
 			this->tabControl->SuspendLayout();
 			this->Compress->SuspendLayout();
 			this->panel1->SuspendLayout();
@@ -247,6 +252,7 @@ namespace PicoZip {
 			// compressFileNameBox
 			// 
 			this->compressFileNameBox->Anchor = System::Windows::Forms::AnchorStyles::Right;
+			this->compressFileNameBox->Enabled = false;
 			this->compressFileNameBox->Location = System::Drawing::Point(130, 49);
 			this->compressFileNameBox->Margin = System::Windows::Forms::Padding(4);
 			this->compressFileNameBox->Name = L"compressFileNameBox";
@@ -267,6 +273,22 @@ namespace PicoZip {
 			this->Decompress->TabIndex = 1;
 			this->Decompress->Text = L"Decompress";
 			this->Decompress->UseVisualStyleBackColor = true;
+			// 
+			// decompressProgressBarLabel
+			// 
+			this->decompressProgressBarLabel->AutoSize = true;
+			this->decompressProgressBarLabel->Location = System::Drawing::Point(12, 139);
+			this->decompressProgressBarLabel->Name = L"decompressProgressBarLabel";
+			this->decompressProgressBarLabel->Size = System::Drawing::Size(0, 17);
+			this->decompressProgressBarLabel->TabIndex = 9;
+			// 
+			// decompressProgressBar
+			// 
+			this->decompressProgressBar->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Left));
+			this->decompressProgressBar->Location = System::Drawing::Point(4, 162);
+			this->decompressProgressBar->Name = L"decompressProgressBar";
+			this->decompressProgressBar->Size = System::Drawing::Size(466, 23);
+			this->decompressProgressBar->TabIndex = 8;
 			// 
 			// decompressButton
 			// 
@@ -316,6 +338,7 @@ namespace PicoZip {
 			// decompressFileNameBox
 			// 
 			this->decompressFileNameBox->Anchor = System::Windows::Forms::AnchorStyles::Right;
+			this->decompressFileNameBox->Enabled = false;
 			this->decompressFileNameBox->Location = System::Drawing::Point(146, 49);
 			this->decompressFileNameBox->Margin = System::Windows::Forms::Padding(4);
 			this->decompressFileNameBox->Name = L"decompressFileNameBox";
@@ -325,22 +348,6 @@ namespace PicoZip {
 			// openFileDialog1
 			// 
 			this->openFileDialog1->FileName = L"openFileDialog1";
-			// 
-			// decompressProgressBarLabel
-			// 
-			this->decompressProgressBarLabel->AutoSize = true;
-			this->decompressProgressBarLabel->Location = System::Drawing::Point(12, 139);
-			this->decompressProgressBarLabel->Name = L"decompressProgressBarLabel";
-			this->decompressProgressBarLabel->Size = System::Drawing::Size(0, 17);
-			this->decompressProgressBarLabel->TabIndex = 9;
-			// 
-			// decompressProgressBar
-			// 
-			this->decompressProgressBar->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Left));
-			this->decompressProgressBar->Location = System::Drawing::Point(4, 162);
-			this->decompressProgressBar->Name = L"decompressProgressBar";
-			this->decompressProgressBar->Size = System::Drawing::Size(466, 23);
-			this->decompressProgressBar->TabIndex = 8;
 			// 
 			// Form1
 			// 
@@ -372,6 +379,7 @@ namespace PicoZip {
 			Cursor->Current = isWaiting ? Cursors::WaitCursor : Cursors::Default;
 			Application::DoEvents();
 		}
+
 		System::Void compressButton_Click(System::Object^  sender, System::EventArgs^  e)
 		{
 			// Displays a SaveFileDialog so the user can pick where to output the compressed file.
