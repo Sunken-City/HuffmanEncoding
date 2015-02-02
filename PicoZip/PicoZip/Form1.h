@@ -252,7 +252,6 @@ namespace PicoZip {
 			// compressFileNameBox
 			// 
 			this->compressFileNameBox->Anchor = System::Windows::Forms::AnchorStyles::Right;
-			this->compressFileNameBox->Enabled = false;
 			this->compressFileNameBox->Location = System::Drawing::Point(130, 49);
 			this->compressFileNameBox->Margin = System::Windows::Forms::Padding(4);
 			this->compressFileNameBox->Name = L"compressFileNameBox";
@@ -338,7 +337,6 @@ namespace PicoZip {
 			// decompressFileNameBox
 			// 
 			this->decompressFileNameBox->Anchor = System::Windows::Forms::AnchorStyles::Right;
-			this->decompressFileNameBox->Enabled = false;
 			this->decompressFileNameBox->Location = System::Drawing::Point(146, 49);
 			this->decompressFileNameBox->Margin = System::Windows::Forms::Padding(4);
 			this->decompressFileNameBox->Name = L"decompressFileNameBox";
@@ -388,7 +386,7 @@ namespace PicoZip {
 			saveFileDialog1->Title = "Compress a File";
 			saveFileDialog1->ShowDialog();
 			// If the file name is not an empty string, open it for saving.
-			if (saveFileDialog1->FileName != "")
+			if (saveFileDialog1->FileName != "" && System::IO::File::Exists(this->compressFileNameBox->Text))
 			{
 				compressProgressBar->Maximum = 100;
 				compressProgressBar->Step = 1;
@@ -414,7 +412,7 @@ namespace PicoZip {
 			}
 			else
 			{
-				MessageBox::Show("Error: Please choose a valid name to save the file as.");
+				MessageBox::Show("Error: Please choose a valid name to save the file as and a valid file to compress.");
 			}
 		}
 
@@ -426,7 +424,7 @@ namespace PicoZip {
 			saveFileDialog1->Title = "Decompress a File";
 			saveFileDialog1->ShowDialog();
 			// If the file name is not an empty string, open it for saving.
-			if (saveFileDialog1->FileName != "")
+			if (saveFileDialog1->FileName != "" && System::IO::File::Exists(this->decompressFileNameBox->Text))
 			{
 				compressProgressBar->Maximum = 100;
 				compressProgressBar->Step = 1;
@@ -441,7 +439,6 @@ namespace PicoZip {
 				while (decompress->isBusy())
 				{
 					decompressProgressBar->Value = decompress->checkProgress();
-					//decompressProgressBarLabel->Text = decompress->progressText();
 				}
 				changeCursor(false);
 				MessageBox::Show("Decompression Finished!");
@@ -449,7 +446,7 @@ namespace PicoZip {
 			}
 			else
 			{
-				MessageBox::Show("Error: Please choose a valid name to save the file as.");
+				MessageBox::Show("Error: Please choose a valid name to save the file as and a valid file to decompress.");
 			}
 		}
 
