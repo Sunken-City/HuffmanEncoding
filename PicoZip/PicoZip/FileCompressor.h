@@ -18,6 +18,7 @@ public:
 	void compress();
 	void decompress();
 	string** createTree();
+	//Added for progress bar support in the GUI
 	int getProgress();
 
 private:

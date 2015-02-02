@@ -187,6 +187,7 @@ string** FileCompressor::createTree()
 
 	BinaryTree<HuffmanData> tree = BinaryTree<HuffmanData>(availableNodes.front());
 
+	//Make a hash table to hold the codeword for each character.
 	string* huffmanCodes = new string[0x101];
 	for (size_t i = 0; i < 0x101; i++)
 	{

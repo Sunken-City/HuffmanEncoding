@@ -6,7 +6,8 @@ public:
 	T data;
 	BinaryNode *left, *right;
 	BinaryNode() : left(nullptr), right(nullptr) {};
-	BinaryNode(T payload, BinaryNode* leftChild, BinaryNode* rightChild) : data(payload), left(leftChild), right(rightChild) {}
+	BinaryNode(T payload, BinaryNode* leftChild, BinaryNode* rightChild) : data(payload), left(leftChild), right(rightChild) {};
+	//A few constants I defined to use in tree parsing.
 	char isNull = 'X';
 	char notNull = 'O';
 	char nodeIsLeaf = 'L';
@@ -50,6 +51,7 @@ public:
 		read->IO<char>(isNodeNull);
 		if (isNodeNull == 'O')
 			child = BinaryNode::reconstruct(read);
+		//We don't need to reconstruct null children.
 		return child;
 	}
 
@@ -62,7 +64,7 @@ public:
 		{
 			node->data.reconstruct(read);
 		}
-		else
+		else //Don't even attempt to read the data if the node is a leaf, it's garbage anyway.
 		{
 			node->left = reconstructChild(read);
 			node->right = reconstructChild(read);
